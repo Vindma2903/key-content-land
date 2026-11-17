@@ -67,11 +67,37 @@
     if (e.target === modal) closeModal();
   });
 
-  // Отправка: здесь подключается ваш обработчик (CRM, почта, Telegram и т.п.)
+  // Отправка заявок: /lead-api -> Telegram-бот
+  function sendLead(form, kind, onOk) {
+    var f = form.elements, btn = form.querySelector('button[type="submit"]');
+    var body = {
+      form: kind,
+      name: f.name ? f.name.value : '',
+      phone: f.phone ? f.phone.value : '',
+      site: f.site ? f.site.value : '',
+      message: f.text ? f.text.value : ''
+    };
+    if (btn) btn.disabled = true;
+    fetch('/lead-api', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function (r) {
+      if (!r.ok) throw new Error('bad status');
+      onOk();
+    }).catch(function () {
+      alert('Не удалось отправить заявку. Позвоните нам: +7 996 924-16-48');
+    }).then(function () {
+      if (btn) btn.disabled = false;
+    });
+  }
+
   demoForm.addEventListener('submit', function (e) {
     e.preventDefault();
-    demoForm.hidden = true;
-    demoDone.hidden = false;
+    sendLead(demoForm, 'Запись на демо', function () {
+      demoForm.hidden = true;
+      demoDone.hidden = false;
+    });
   });
 
   var fbForm = document.getElementById('fb-form');
@@ -79,8 +105,10 @@
   if (fbForm) {
     fbForm.addEventListener('submit', function (e) {
       e.preventDefault();
-      fbForm.hidden = true;
-      fbDone.hidden = false;
+      sendLead(fbForm, 'Обратная связь', function () {
+        fbForm.hidden = true;
+        fbDone.hidden = false;
+      });
     });
   }
 
