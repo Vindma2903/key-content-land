@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ключевик — платформа органического трафика на AI-агентах</title>
+<meta name="description" content="Ключевик превращает поисковый спрос в системный источник органического трафика: команда AI-агентов анализирует спрос, строит карту тем и создаёт материалы по стратегии.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- шрифты не блокируют отрисовку: пока не загрузились, показывается системный -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"></noscript>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body id="top">
+
+<a class="skip" href="#main">Перейти к содержимому</a>
+
+<!-- ШАПКА -->
+<header class="header">
+  <div class="wrap header__row">
+    <a class="logo" href="#top"><span class="logo__mark" aria-hidden="true">🔑</span>Ключевик</a>
+    <nav class="nav" aria-label="Основное меню">
+      <a href="#features">Возможности</a>
+      <a href="#audience">Для кого</a>
+      <a href="#calc">Стоимость</a>
+      <a href="#faq">Вопросы</a>
+      <a href="#">Блог</a>
+    </nav>
+    <div class="header__actions">
+      <button class="btn btn--sm" type="button" data-open-modal><span class="hide-phone">📅 Записаться на демо</span><span class="show-phone">📅 Демо</span></button>
+      <button class="burger" id="burger" type="button" aria-label="Меню" aria-expanded="false" aria-controls="mobile-menu">☰</button>
+    </div>
+  </div>
+  <div class="mmenu" id="mobile-menu" hidden>
+    <a href="#features">Возможности</a>
+    <a href="#audience">Для кого</a>
+    <a href="#calc">Стоимость</a>
+    <a href="#faq">Вопросы</a>
+    <a href="#">Блог</a>
+    <button class="btn" type="button" data-open-modal><span class="hide-phone">📅 Записаться на демонстрацию</span><span class="show-phone">📅 Записаться на демо</span></button>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero__inner">
+    <span class="pill">🚀 <span class="hide-phone">Платформа органического трафика на AI-агентах</span><span class="show-phone">Платформа органического трафика</span></span>
+    <h1><span class="hide-phone">Превращаем поисковый спрос в системный источник <span class="accent">органического трафика</span></span><span class="show-phone">Поисковый спрос → <span class="accent">органический трафик</span></span></h1>
+    <p>Команда AI-агентов анализирует спрос, строит карту тем и создаёт материалы по стратегии.</p>
+    <button class="btn btn--lg" type="button" data-open-modal><span class="hide-phone">📅 Записаться на демонстрацию</span><span class="show-phone">📅 Записаться на демо</span></button>
+  </div>
+</section>
+
+<!-- АУДИТОРИЯ: БЕГУЩАЯ СТРОКА -->
+<section class="marquee" aria-label="Для кого подходит платформа">
+  <div class="marquee__track" id="marquee-track">
+    <span class="marquee__item"><span>Малый и средний бизнес</span><i></i></span>
+    <span class="marquee__item"><span>SaaS и IT-компании</span><i></i></span>
+    <span class="marquee__item"><span>B2B-компании</span><i></i></span>
+    <span class="marquee__item"><span>Интернет-магазины</span><i></i></span>
+    <span class="marquee__item"><span>Маркетологи</span><i></i></span>
+    <span class="marquee__item"><span>Компании, которым нужен масштабируемый органический трафик</span><i></i></span>
+  </div>
+</section>
+
+<!-- ПРОБЛЕМЫ -->
+<section class="section" id="problems">
+  <div class="wrap">
+    <div class="head">
+      <span class="pill">😩 Знакомая картина?</span>
+      <h2 class="h2">Статьи выходят, а трафика нет. <span class="mark">Почему так?</span></h2>
+      <p class="lead">Бизнесу недостаточно просто публиковать статьи. Нужно понимать, что ищет аудитория, какие темы закрыть и как выстроить системную работу с контентом.</p>
+    </div>
+
+    <div class="bento">
+      <article class="card lift bento__a card--soft card--big">
+        <span class="card__emoji card__emoji--xl" aria-hidden="true">⏳</span>
+        <div><h3>SEO требует много времени и ресурсов</h3><p>Каждый этап отнимает время команды и бюджет, а результат приходится ждать.</p></div>
+      </article>
+      <article class="card lift bento__b card--line">
+        <span class="card__emoji card__emoji--l" aria-hidden="true">😞</span>
+        <div><h3>Статьи есть — результата нет</h3><p>Материалы публикуются, но не дают ожидаемого трафика.</p></div>
+      </article>
+      <article class="card lift bento__c card--mist">
+        <span class="card__emoji" aria-hidden="true">🌫️</span>
+        <h3>Нет понимания реального спроса</h3><p>Темы выбираются на глаз, а не по тому, что действительно ищет аудитория.</p>
+      </article>
+      <article class="card lift bento__c card--line">
+        <span class="card__emoji" aria-hidden="true">🧩</span>
+        <h3>Контент бессистемный</h3><p>Отдельные тексты не складываются в структуру сайта и не усиливают друг друга.</p>
+      </article>
+      <article class="card lift bento__c card--soft">
+        <span class="card__emoji" aria-hidden="true">📦</span>
+        <h3>Сложно масштабировать</h3><p>Производство материалов упирается в людей и ручные процессы.</p>
+      </article>
+      <article class="card lift bento__d card--line">
+        <span class="card__emoji" aria-hidden="true">🛠️</span>
+        <h3>Много людей и инструментов</h3><p>Аналитика в одном месте, стратегия в другом, тексты в третьем.</p>
+      </article>
+      <article class="card lift bento__d card--mist">
+        <span class="card__emoji" aria-hidden="true">🕰️</span>
+        <h3>Статьи занимают много времени</h3><p>Написание, редактура и публикация каждого материала съедают часы команды, а тем нужно закрывать много.</p>
+      </article>
+      <div class="banner bento__e">
+        <div>
+          <div class="banner__emoji" aria-hidden="true">✨</div>
+          <h3>Ключевик собирает всё это в одну систему</h3>
+          <p>От поискового спроса и производства материалов до анализа результатов.</p>
+        </div>
+        <button class="btn btn--white" type="button" data-open-modal>Показать на демо →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ОТЛИЧИЕ -->
+<section class="section" id="difference">
+  <div class="wrap">
+    <div class="head head--wide">
+      <span class="pill">⚖️ Не просто генерация текстов</span>
+      <h2 class="h2">Ключевик начинает не с текста, а <span class="accent">со спроса</span></h2>
+    </div>
+
+    <div class="diff-head" aria-hidden="true">
+      <span>Вопрос бизнеса</span><span>Обычная генерация</span><span class="accent">Ключевик</span>
+    </div>
+    <div class="diff">
+      <article class="diff__row lift">
+        <span class="diff__icon" aria-hidden="true">🔎</span>
+        <h3 class="diff__q">Что на самом деле ищет аудитория?</h3>
+        <p class="diff__bad"><span class="ico ico--bad" aria-hidden="true">✕</span><span><small class="diff__lab">Обычная генерация</small>Тему задаёт человек, спрос не изучается</span></p>
+        <p class="diff__good"><span class="ico ico--good" aria-hidden="true">✓</span><span><small class="diff__lab">Ключевик</small>Анализ поискового спроса</span></p>
+      </article>
+      <article class="diff__row lift">
+        <span class="diff__icon" aria-hidden="true">🗺️</span>
+        <h3 class="diff__q">Какие темы нужно закрыть?</h3>
+        <p class="diff__bad"><span class="ico ico--bad" aria-hidden="true">✕</span><span><small class="diff__lab">Обычная генерация</small>Один запрос — один текст, без общей картины</span></p>
+        <p class="diff__good"><span class="ico ico--good" aria-hidden="true">✓</span><span><small class="diff__lab">Ключевик</small>Карта спроса и контентная стратегия</span></p>
+      </article>
+      <article class="diff__row lift">
+        <span class="diff__icon" aria-hidden="true">🧱</span>
+        <h3 class="diff__q">Как материалы складываются в систему?</h3>
+        <p class="diff__bad"><span class="ico ico--bad" aria-hidden="true">✕</span><span><small class="diff__lab">Обычная генерация</small>Отдельные тексты без связи</span></p>
+        <p class="diff__good"><span class="ico ico--good" aria-hidden="true">✓</span><span><small class="diff__lab">Ключевик</small>Развитие структуры сайта</span></p>
+      </article>
+      <article class="diff__row lift">
+        <span class="diff__icon" aria-hidden="true">📊</span>
+        <h3 class="diff__q">Что делать после публикации?</h3>
+        <p class="diff__bad"><span class="ico ico--bad" aria-hidden="true">✕</span><span><small class="diff__lab">Обычная генерация</small>Результат не анализируется</span></p>
+        <p class="diff__good"><span class="ico ico--good" aria-hidden="true">✓</span><span><small class="diff__lab">Ключевик</small>Анализ и новые точки роста</span></p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ВОЗМОЖНОСТИ -->
+<section class="section" id="features">
+  <div class="wrap">
+    <div class="head">
+      <span class="pill">🧭 Как устроена платформа</span>
+      <h2 class="h2">От поискового спроса до новых точек роста — <span class="mark">в одной системе</span></h2>
+    </div>
+
+    <div class="feat">
+      <article class="fcard lift fcard--w card--line">
+        <div class="fcard__top"><span class="fcard__ico fcard__ico--mist" aria-hidden="true">🔎</span><span class="fcard__step">ШАГ 1</span></div>
+        <div><h3>Анализ поискового спроса</h3><p>Понимаем, что на самом деле ищет ваша аудитория, а не угадываем темы.</p></div>
+        <div class="chips"><span class="chip">🔍 как выбрать crm</span><span class="chip">🔍 crm для малого бизнеса</span><span class="chip">🔍 crm сравнение</span><span class="chip">🔍 интеграция crm с почтой</span></div>
+        <small>Иллюстрация, условный пример</small>
+      </article>
+
+      <article class="fcard lift card--mist">
+        <div class="fcard__top"><span class="fcard__ico" aria-hidden="true">🗺️</span><span class="fcard__step">ШАГ 2</span></div>
+        <div><h3>Карта спроса</h3><p>Темы и запросы собираются в структуру: видно, что уже закрыто, а что нет.</p></div>
+        <div class="bubbles" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+      </article>
+
+      <article class="fcard lift card--soft">
+        <div class="fcard__top"><span class="fcard__ico" aria-hidden="true">🎯</span><span class="fcard__step">ШАГ 3</span></div>
+        <div><h3>Контентная стратегия</h3><p>Определяем, какие темы закрывать и в каком порядке.</p></div>
+        <ul class="checks">
+          <li>☑️ Приоритетные темы</li>
+          <li>☑️ Порядок публикаций</li>
+          <li>⬜ Новые направления</li>
+        </ul>
+      </article>
+
+      <article class="fcard lift fcard--w fcard--split card--line">
+        <div class="fcard__col">
+          <div class="fcard__top"><span class="fcard__ico fcard__ico--mist" aria-hidden="true">🧠</span><span class="fcard__step">ШАГ 4</span></div>
+          <div><h3>SEO-материалы от AI-агентов</h3><p>Материалы создаются по стратегии и карте спроса, а не «с нуля».</p></div>
+        </div>
+        <div class="doc" aria-hidden="true">
+          <i style="width:60%;height:12px;background:var(--mist2)"></i>
+          <i style="width:100%"></i><i style="width:92%"></i><i style="width:96%"></i><i style="width:48%"></i>
+          <b>🤖 Агент пишет<span class="cursor"></span></b>
+        </div>
+      </article>
+
+      <article class="fcard lift fcard--w fcard--split card--mist">
+        <div class="fcard__col">
+          <div class="fcard__top"><span class="fcard__ico" aria-hidden="true">✍️</span><span class="fcard__step">ШАГ 5</span></div>
+          <div><h3>Развитие структуры сайта</h3><p>Материалы складываются в систему, а не остаются отдельными страницами.</p></div>
+        </div>
+        <div class="tree" aria-hidden="true">
+          <div class="tree__a">🏠 Раздел</div>
+          <div class="tree__b">📄 Тема</div>
+          <div class="tree__c">📄 Материал</div>
+          <div class="tree__c tree__next">＋ Следующий</div>
+        </div>
+      </article>
+
+      <article class="fcard lift card--line">
+        <div class="fcard__top"><span class="fcard__ico fcard__ico--mist" aria-hidden="true">📊</span><span class="fcard__step">ШАГ 6</span></div>
+        <div><h3>Анализ и точки роста</h3><p>По результатам находим новые возможности и возвращаемся к шагу 1.</p></div>
+        <div class="bars" aria-hidden="true"><span style="height:30%"></span><span style="height:45%"></span><span style="height:62%"></span><span style="height:80%"></span><span style="height:100%"></span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- КАРТА СПРОСА -->
+<section class="section section--mist" id="map">
+  <div class="wrap">
+    <div class="head-row">
+      <div class="head head--wide">
+        <span class="pill pill--white">🗺️ Главная идея платформы</span>
+        <h2 class="h2">Карта спроса: видно, какие темы <span class="accent">закрыты, а где точки роста</span></h2>
+      </div>
+      <button class="btn" type="button" data-open-modal>Посмотреть на демо →</button>
+    </div>
+
+    <div class="legend">
+      <span class="lg lg--done">✅ Закрыто</span>
+      <span class="lg lg--plan">✍️ В плане</span>
+      <span class="lg lg--grow">💡 Точка роста</span>
+      <span class="legend__note">Пример: условная ниша «CRM для малого бизнеса»</span>
+    </div>
+
+    <div class="map">
+      <div class="map__rows">
+        <div class="mrow lift"><span class="mrow__ico" aria-hidden="true">🧭</span><span class="mrow__name">Выбор и сравнение</span><span class="cells" aria-hidden="true"><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="p"></i><i class="g"></i></span></div>
+        <div class="mrow lift"><span class="mrow__ico" aria-hidden="true">🧰</span><span class="mrow__name">Внедрение</span><span class="cells" aria-hidden="true"><i class="d"></i><i class="d"></i><i class="d"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="g"></i><i class="g"></i></span></div>
+        <div class="mrow lift"><span class="mrow__ico" aria-hidden="true">🔗</span><span class="mrow__name">Интеграции</span><span class="cells" aria-hidden="true"><i class="d"></i><i class="p"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i></span></div>
+        <div class="mrow lift"><span class="mrow__ico" aria-hidden="true">🎓</span><span class="mrow__name">Обучение</span><span class="cells" aria-hidden="true"><i class="p"></i><i class="p"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i></span></div>
+        <div class="mrow lift"><span class="mrow__ico" aria-hidden="true">📈</span><span class="mrow__name">Отчётность</span><span class="cells" aria-hidden="true"><i class="d"></i><i class="d"></i><i class="d"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="g"></i></span></div>
+        <div class="mrow lift"><span class="mrow__ico" aria-hidden="true">⚙️</span><span class="mrow__name">Автоматизация</span><span class="cells" aria-hidden="true"><i class="p"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i></span></div>
+        <p class="map__note">Каждый квадрат — тема (иллюстрация).</p>
+      </div>
+      <aside class="next">
+        <div class="next__emoji" aria-hidden="true">💡</div>
+        <h3>Что закрыть дальше</h3>
+        <p>Темы, которых ещё нет на сайте, но по которым аудитория ищет ответы.</p>
+        <ul>
+          <li><span aria-hidden="true">🔍</span>crm и почта</li>
+          <li><span aria-hidden="true">🔍</span>crm и телефония</li>
+          <li><span aria-hidden="true">🔍</span>обучение сотрудников</li>
+          <li><span aria-hidden="true">🔍</span>автоматизация задач</li>
+          <li><span aria-hidden="true">🔍</span>роботы в crm</li>
+        </ul>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- AI-АГЕНТЫ -->
+<section class="section" id="agents">
+  <div class="wrap">
+    <div class="head head--center">
+      <span class="pill">🤖 Команда AI-агентов</span>
+      <h2 class="h2">Не один промпт, а <span class="mark">слаженная команда</span>, где этапы связаны</h2>
+      <p class="lead">Результат одного этапа становится основой для следующего: анализ спроса → стратегия → материалы → анализ результатов.</p>
+    </div>
+    <div class="agents">
+      <div class="agent"><article class="card lift agent__card" style="background:#fff"><div class="agent__ico" aria-hidden="true">🔎</div><h3>Агент спроса</h3><p>Анализирует поисковый спрос и собирает карту спроса</p></article><span class="agent__arrow" aria-hidden="true">→</span></div>
+      <div class="agent"><article class="card lift agent__card" style="background:var(--soft)"><div class="agent__ico" aria-hidden="true">🎯</div><h3>Агент стратегии</h3><p>Формирует контентную стратегию и приоритеты тем</p></article><span class="agent__arrow" aria-hidden="true">→</span></div>
+      <div class="agent"><article class="card lift agent__card" style="background:var(--mist)"><div class="agent__ico" aria-hidden="true">🧠</div><h3>Агент материалов</h3><p>Создаёт SEO-материалы и развивает структуру сайта</p></article><span class="agent__arrow" aria-hidden="true">→</span></div>
+      <div class="agent"><article class="card lift agent__card" style="background:#fff"><div class="agent__ico" aria-hidden="true">📊</div><h3>Агент анализа</h3><p>Оценивает результаты и ищет новые возможности роста</p></article></div>
+    </div>
+    <p class="loop">🔁 Результаты анализа возвращаются в начало цикла — и находят новые возможности роста</p>
+  </div>
+</section>
+
+<!-- ДЕМО -->
+<section class="section" id="demo">
+  <div class="wrap">
+    <div class="head head--wide">
+      <span class="pill">📅 Демонстрация</span>
+      <h2 class="h2">Покажем, как это работает <span class="accent">на вашем проекте</span></h2>
+    </div>
+    <ol class="steps">
+      <li class="step">
+        <div class="step__top"><span class="step__n">1</span><span class="step__line"></span></div>
+        <div class="card lift card--line step__card"><div class="step__emoji" aria-hidden="true">📝</div><h3>Оставляете заявку</h3><p>Имя, телефон и адрес вашего сайта — это занимает минуту.</p></div>
+      </li>
+      <li class="step">
+        <div class="step__top"><span class="step__n">2</span><span class="step__line"></span></div>
+        <div class="card lift card--line step__card"><div class="step__emoji" aria-hidden="true">🗓️</div><h3>Согласуем время</h3><p>Связываемся и выбираем удобное время демонстрации.</p></div>
+      </li>
+      <li class="step">
+        <div class="step__top"><span class="step__n">3</span><span class="step__line"></span></div>
+        <div class="card lift card--line step__card"><div class="step__emoji" aria-hidden="true">🖥️</div><h3>Показываем на вашем проекте</h3><p>Не абстрактный пример: платформа работает с вашей нишей и сайтом.</p></div>
+      </li>
+      <li class="step step--last">
+        <div class="step__top"><span class="step__n">4</span><span class="step__line step__line--none"></span></div>
+        <div class="card lift step__card step__card--accent"><div class="step__emoji" aria-hidden="true">🚀</div><h3>Вы видите результат</h3><p>Понимаете, как Ключевик будет приводить органический трафик вам.</p></div>
+      </li>
+    </ol>
+    <div class="cta-row">
+      <button class="btn" type="button" data-open-modal><span class="hide-phone">📅 Записаться на демонстрацию</span><span class="show-phone">📅 Записаться на демо</span></button>
+      <span>Демонстрация проходит на примере вашего сайта</span>
+    </div>
+  </div>
+</section>
+
+<!-- ДЛЯ КОГО -->
+<section class="section section--tight" id="audience">
+  <div class="wrap">
+    <div class="head">
+      <span class="pill">🎯 Для кого</span>
+      <h2 class="h2">Подходит бизнесам, которым нужен <span class="mark">масштабируемый</span> органический трафик</h2>
+    </div>
+    <div class="aud">
+      <div class="tabs" role="tablist" aria-label="Сегменты аудитории" aria-orientation="vertical" id="tabs"></div>
+      <div class="panel" id="panel" role="tabpanel" aria-live="polite">
+        <div class="panel__emoji" id="p-emoji" aria-hidden="true"></div>
+        <h3 id="p-name"></h3>
+        <p class="lead" id="p-text"></p>
+        <ul class="panel__list" id="p-list"></ul>
+        <button class="btn" type="button" data-open-modal>📅 Записаться на демо</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- КАЛЬКУЛЯТОР СТОИМОСТИ -->
+<section class="section section--soft" id="calc">
+  <div class="wrap">
+    <div class="head head--wide">
+      <span class="pill pill--white">🧮 Калькулятор</span>
+      <h2 class="h2">Рассчитайте стоимость <span class="accent">под ваши платформы</span></h2>
+      <p class="lead">Выберите, сколько публикаций нужно на каждую платформу, — стоимость посчитается автоматически.</p>
+    </div>
+
+    <div class="calc">
+      <div class="calc__rows">
+        <div class="crow" data-k="site" data-cr="3" data-def="20">
+          <div class="crow__top">
+            <span class="crow__ico" aria-hidden="true">🌐</span><span class="crow__name">Сайт</span>
+            <span class="chip">3 кредита за пост</span><span class="crow__inc">входит в минимальный тариф</span>
+            <span class="crow__sub" data-sub></span>
+          </div>
+          <div class="crow__ctl">
+            <button type="button" class="cbtn" data-minus aria-label="Сайт: уменьшить количество публикаций">−</button>
+            <input type="range" min="0" max="100" step="1" value="20" aria-label="Сайт: количество публикаций">
+            <button type="button" class="cbtn" data-plus aria-label="Сайт: увеличить количество публикаций">+</button>
+            <span class="crow__count"><b data-count>20</b> <small>пост.</small></span>
+          </div>
+        </div>
+        <div class="crow" data-k="tg" data-cr="2" data-def="20">
+          <div class="crow__top">
+            <span class="crow__ico" aria-hidden="true">✈️</span><span class="crow__name">Телеграм</span>
+            <span class="chip">2 кредита за пост</span><span class="crow__inc">входит в минимальный тариф</span>
+            <span class="crow__sub" data-sub></span>
+          </div>
+          <div class="crow__ctl">
+            <button type="button" class="cbtn" data-minus aria-label="Телеграм: уменьшить количество публикаций">−</button>
+            <input type="range" min="0" max="100" step="1" value="20" aria-label="Телеграм: количество публикаций">
+            <button type="button" class="cbtn" data-plus aria-label="Телеграм: увеличить количество публикаций">+</button>
+            <span class="crow__count"><b data-count>20</b> <small>пост.</small></span>
+          </div>
+        </div>
+        <div class="crow" data-k="tenchat" data-cr="2" data-def="0">
+          <div class="crow__top">
+            <span class="crow__ico" aria-hidden="true">💬</span><span class="crow__name">ТенЧат</span>
+            <span class="chip">2 кредита за пост</span>
+            <span class="crow__sub" data-sub></span>
+          </div>
+          <div class="crow__ctl">
+            <button type="button" class="cbtn" data-minus aria-label="ТенЧат: уменьшить количество публикаций">−</button>
+            <input type="range" min="0" max="100" step="1" value="0" aria-label="ТенЧат: количество публикаций">
+            <button type="button" class="cbtn" data-plus aria-label="ТенЧат: увеличить количество публикаций">+</button>
+            <span class="crow__count"><b data-count>0</b> <small>пост.</small></span>
+          </div>
+        </div>
+        <div class="crow" data-k="dzen" data-cr="3" data-def="0">
+          <div class="crow__top">
+            <span class="crow__ico" aria-hidden="true">📰</span><span class="crow__name">Дзен</span>
+            <span class="chip">3 кредита за пост</span>
+            <span class="crow__sub" data-sub></span>
+          </div>
+          <div class="crow__ctl">
+            <button type="button" class="cbtn" data-minus aria-label="Дзен: уменьшить количество публикаций">−</button>
+            <input type="range" min="0" max="100" step="1" value="0" aria-label="Дзен: количество публикаций">
+            <button type="button" class="cbtn" data-plus aria-label="Дзен: увеличить количество публикаций">+</button>
+            <span class="crow__count"><b data-count>0</b> <small>пост.</small></span>
+          </div>
+        </div>
+        <div class="calc__presets">
+          <button type="button" class="ghost" id="calc-rec">✨ Рекомендуем: по 30 в месяц</button>
+          <button type="button" class="ghost" id="calc-reset">↺ Минимальный тариф</button>
+        </div>
+      </div>
+
+      <aside class="csum" aria-live="polite">
+        <div class="csum__title">Ваш расчёт</div>
+        <div class="csum__line"><span>Публикаций всего</span><b id="calc-pubs">40</b></div>
+        <div class="csum__line"><span>Кредитов на старте</span><b id="calc-credits">100</b></div>
+        <div class="csum__hr"></div>
+        <div>
+          <div class="csum__label">Стоимость</div>
+          <div class="csum__price"><span id="calc-price">8&nbsp;500</span>&nbsp;₽</div>
+        </div>
+        <div class="csum__warn" id="calc-below" hidden>Выбрано меньше минимального тарифа — стоимость 8&nbsp;500&nbsp;₽ (100 кредитов).</div>
+        <p class="csum__note">Минимальный тариф — сайт и Телеграм по 20 публикаций, 100 кредитов на старте.</p>
+        <div class="csum__gift">🎁 +3 тестовые статьи бесплатно</div>
+        <button class="btn btn--white" type="button" data-open-modal><span class="hide-phone">📅 Записаться на демонстрацию</span><span class="show-phone">📅 Записаться на демо</span></button>      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section section--soft" id="faq">
+  <div class="wrap wrap--narrow">
+    <div class="head head--center">
+      <span class="pill">❓ Частые вопросы</span>
+      <h2 class="h2">Коротко о главном</h2>
+    </div>
+    <div class="faqbox" id="faqbox">
+      <div class="faq-item is-open">
+        <h3><button class="faq" type="button" aria-expanded="true" aria-controls="fa1"><span>Ключевик — это просто генератор статей?</span><span class="faq__i" aria-hidden="true">−</span></button></h3>
+        <p class="faq__a" id="fa1">Нет. Статьи — лишь один из этапов. Платформа начинается с анализа поискового спроса, строит карту спроса и контентную стратегию, затем AI-агенты создают материалы, а результаты анализируются для поиска новых возможностей роста.</p>
+      </div>
+      <div class="faq-item">
+        <h3><button class="faq" type="button" aria-expanded="false" aria-controls="fa2"><span>Для какого бизнеса подходит платформа?</span><span class="faq__i" aria-hidden="true">+</span></button></h3>
+        <p class="faq__a" id="fa2" hidden>Для малого и среднего бизнеса, SaaS- и IT-компаний, B2B, интернет-магазинов, а также маркетологов и команд, которым нужен масштабируемый органический трафик.</p>
+      </div>
+      <div class="faq-item">
+        <h3><button class="faq" type="button" aria-expanded="false" aria-controls="fa3"><span>Что будет на демонстрации?</span><span class="faq__i" aria-hidden="true">+</span></button></h3>
+        <p class="faq__a" id="fa3" hidden>Покажем платформу и логику её работы: от анализа спроса и карты спроса до контентной стратегии и создания материалов. Ответим на вопросы по вашей задаче.</p>
+      </div>
+      <div class="faq-item">
+        <h3><button class="faq" type="button" aria-expanded="false" aria-controls="fa4"><span>Чем это отличается от работы с несколькими специалистами и сервисами?</span><span class="faq__i" aria-hidden="true">+</span></button></h3>
+        <p class="faq__a" id="fa4" hidden>Вместо набора разрозненных инструментов и исполнителей — одна платформа с командой AI-агентов, где этапы связаны между собой.</p>
+      </div>
+      <div class="faq-item">
+        <h3><button class="faq" type="button" aria-expanded="false" aria-controls="fa5"><span>Сколько это стоит?</span><span class="faq__i" aria-hidden="true">+</span></button></h3>
+        <p class="faq__a" id="fa5" hidden>Стоимость зависит от количества публикаций и платформ, на которых их нужно разместить. Всё настраивается индивидуально. Рекомендуем выпускать для каждой платформы не менее 30 публикаций в месяц.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ФИНАЛЬНЫЙ CTA -->
+<section class="section">
+  <div class="wrap">
+    <div class="final">
+      <div class="final__emoji" aria-hidden="true">🚀</div>
+      <h2>Превратите поисковый спрос в системный источник трафика</h2>
+      <p>Запишитесь на демонстрацию Ключевика и посмотрите, как платформа работает со спросом и контентом.</p>
+      <button class="btn btn--white btn--lg" type="button" data-open-modal><span class="hide-phone">📅 Записаться на демонстрацию</span><span class="show-phone">📅 Записаться на демо</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ОБРАТНАЯ СВЯЗЬ -->
+<section class="section section--soft" id="contact">
+  <div class="wrap contact">
+    <div class="contact__text">
+      <span class="pill">💬 Обратная связь</span>
+      <h2 class="h2">Остались вопросы? <span class="accent">Напишите нам</span></h2>
+      <p class="lead">Расскажите, что хотите узнать о платформе, — ответим и подскажем, подходит ли Ключевик вашей задаче.</p>
+      <div class="contact__list"><span>📞 <a href="tel:+79969241648">+7 996 924-16-48</a></span><span>✉️ <a href="mailto:info@pro-technologii.ru">info@pro-technologii.ru</a></span></div>
+    </div>
+    <div class="contact__form">
+      <form id="fb-form" class="form">
+        <label>Имя<input class="inp" type="text" name="name" autocomplete="name" required placeholder="Как к вам обращаться"></label>
+        <label>Телефон<input class="inp" type="tel" name="phone" autocomplete="tel" required placeholder="+7 ___ ___-__-__"></label>
+        <label>Сайт<input class="inp" type="text" name="site" required placeholder="example.ru"></label>
+        <label>Ваш вопрос<textarea class="inp inp--area" name="text" rows="4" required placeholder="Что хотите узнать?"></textarea></label>
+        <label class="agree"><input type="checkbox" required><span>Согласен на обработку персональных данных [ссылка на политику]</span></label>
+        <button class="btn btn--block" type="submit">Отправить</button>
+      </form>
+      <div class="done" id="fb-done" hidden>
+        <div class="done__emoji" aria-hidden="true">✅</div>
+        <h3>Сообщение отправлено</h3>
+        <p>Спасибо! Мы ответим вам в ближайшее время.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ПОДВАЛ -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__grid">
+      <div class="footer__about">
+        <div class="logo"><span class="logo__mark" aria-hidden="true">🔑</span>Ключевик</div>
+        <p>Платформа системного привлечения органического трафика с помощью команды AI-агентов.</p>
+        <button class="btn btn--sm" type="button" data-open-modal>📅 Записаться на демо</button>
+      </div>
+      <nav class="footer__col" aria-label="Платформа">
+        <h4>Платформа</h4>
+        <a href="#problems">Задачи</a><a href="#difference">Отличие</a><a href="#features">Возможности</a><a href="#agents">AI-агенты</a><a href="#audience">Для кого</a><a href="#calc">Стоимость</a><a href="#faq">Вопросы</a>
+      </nav>
+      <nav class="footer__col" aria-label="Компания">
+        <h4>Компания</h4>
+        <a href="/about">О нас</a><a href="#">Блог</a><a href="#contact">Обратная связь</a>
+      </nav>
+      <div class="footer__col">
+        <h4>Контакты</h4>
+        <span><a href="tel:+79969241648">+7 996 924-16-48</a></span><span><a href="mailto:info@pro-technologii.ru">info@pro-technologii.ru</a></span>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2026 Про технологии.</span>
+      <span class="footer__legal"><a href="https://it-consalting24.ru/privacy.html" target="_blank" rel="noopener">Политика конфиденциальности</a><a href="#">[Пользовательское соглашение]</a></span>
+    </div>
+  </div>
+</footer>
+
+<!-- ПОП-АП -->
+<dialog class="modal" id="modal" aria-labelledby="modal-title">
+  <button class="x" type="button" aria-label="Закрыть" data-close-modal>✕</button>
+  <form class="form" id="demo-form">
+    <div>
+      <div class="modal__emoji" aria-hidden="true">📅</div>
+      <h3 id="modal-title">Запишитесь на демонстрацию</h3>
+      <p>Покажем, как Ключевик превращает поисковый спрос в органический трафик. Оставьте контакты — свяжемся.</p>
+    </div>
+    <label>Имя<input class="inp" type="text" name="name" autocomplete="name" required placeholder="Как к вам обращаться"></label>
+    <label>Телефон<input class="inp" type="tel" name="phone" autocomplete="tel" required placeholder="+7 ___ ___-__-__"></label>
+    <label>Сайт<input class="inp" type="text" name="site" required placeholder="example.ru"></label>
+    <label class="agree"><input type="checkbox" required><span>Согласен на обработку персональных данных [ссылка на политику]</span></label>
+    <button class="btn btn--block" type="submit">Записаться на демо</button>
+  </form>
+  <div class="done" id="demo-done" hidden>
+    <div class="done__emoji" aria-hidden="true">🎉</div>
+    <h3>Заявка отправлена!</h3>
+    <p>Спасибо! Мы свяжемся с вами, чтобы согласовать время демонстрации.</p>
+    <button class="btn" type="button" data-close-modal>Отлично</button>
+  </div>
+</dialog>
+
+<script src="script.js"></script>
+</body>
+</html>
