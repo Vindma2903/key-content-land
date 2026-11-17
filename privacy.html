@@ -1,47 +1,51 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Политика обработки персональных данных — Про технологии</title>
-<meta name="description" content="Политика ООО «Про технологии» в отношении обработки персональных данных посетителей сайта keycontent.ru.">
+<title>Политика обработки персональных данных — Ключевик</title>
+<meta name="description" content="Политика в отношении обработки персональных данных посетителей сайта keycontent.ru.">
 <link rel="canonical" href="https://keycontent.ru/privacy">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
-<style>
-  *{box-sizing:border-box}
-  body{margin:0;font-family:'Inter',system-ui,-apple-system,sans-serif;color:#12161f;background:#ffffff;-webkit-font-smoothing:antialiased}
-  a{color:#2f6bff}
-  a:hover{color:#1f4fd6}
-  .top{background:#101114}
-  .top-in{max-width:1240px;margin:0 auto;padding:20px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
-  .logo{color:#ffffff;text-decoration:none;font-size:19px;font-weight:800;letter-spacing:-0.02em}
-  .nav{display:flex;gap:22px;flex-wrap:wrap}
-  .nav a{color:#ffffff;text-decoration:none;font-size:14px;font-weight:500}
-  .nav a:hover{color:#8fb2ff}
-  main{max-width:860px;margin:0 auto;padding:56px 32px 80px}
-  h1{font-size:32px;line-height:1.25;font-weight:800;letter-spacing:-0.01em;margin:0 0 8px}
-  .date{color:#5b6472;font-size:14px;margin:0 0 32px}
-  h2{font-size:20px;font-weight:800;margin:36px 0 12px}
-  p,li{font-size:16px;line-height:1.7;color:#2b313c}
-  p{margin:0 0 12px}
-  ul{margin:0 0 12px;padding-left:22px}
-  .bottom{background:#101114;color:#8891a0;font-size:13px}
-  .bottom-in{max-width:1240px;margin:0 auto;padding:24px 32px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
-  .bottom a{color:#c7ccd6}
-  @media (max-width:640px){main{padding:40px 16px 64px}.top-in,.bottom-in{padding-left:16px;padding-right:16px}h1{font-size:26px}}
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- шрифты не блокируют отрисовку: пока не загрузились, показывается системный -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"></noscript>
+<link rel="stylesheet" href="styles.css">
+<style>.legal{padding:56px 0 88px}.legal h1{font-size:34px;line-height:1.25;margin:0 0 8px}.legal .date{color:var(--gray);font-size:14px;margin:0 0 32px}.legal h2{font-size:21px;margin:36px 0 12px}.legal p,.legal li{font-size:16px;line-height:1.7;color:#2b3a52}.legal p{margin:0 0 12px}.legal ul{margin:0 0 12px;padding-left:22px;list-style:disc}.legal a{color:var(--blue-t);text-decoration:underline}@media(max-width:640px){.legal{padding:36px 0 56px}.legal h1{font-size:26px}}</style>
 </head>
-<body>
-<header class="top">
-  <div class="top-in">
-    <a class="logo" href="/">Ключевик</a>
-    <nav class="nav">
-      <a href="/about">О нас</a>
-      <a href="tel:+79969241648">+7 (996) 924-16-48</a>
+<body id="top">
+
+<a class="skip" href="#main">Перейти к содержимому</a>
+
+<!-- ШАПКА -->
+<header class="header">
+  <div class="wrap header__row">
+    <a class="logo" href="/"><span class="logo__mark" aria-hidden="true">🔑</span>Ключевик</a>
+    <nav class="nav" aria-label="Основное меню">
+      <a href="/#features">Возможности</a>
+      <a href="/#audience">Для кого</a>
+      <a href="/#calc">Стоимость</a>
+      <a href="/#faq">Вопросы</a>
+      <a href="#">Блог</a>
     </nav>
+    <div class="header__actions">
+      <button class="btn btn--sm" type="button" data-open-modal><span class="hide-phone">📅 Записаться на демо</span><span class="show-phone">📅 Демо</span></button>
+      <button class="burger" id="burger" type="button" aria-label="Меню" aria-expanded="false" aria-controls="mobile-menu">☰</button>
+    </div>
+  </div>
+  <div class="mmenu" id="mobile-menu" hidden>
+    <a href="/#features">Возможности</a>
+    <a href="/#audience">Для кого</a>
+    <a href="/#calc">Стоимость</a>
+    <a href="/#faq">Вопросы</a>
+    <a href="#">Блог</a>
+    <button class="btn" type="button" data-open-modal>📅 Записаться на демо</button>
   </div>
 </header>
-<main>
+
+<main id="main">
+<section class="legal"><div class="wrap wrap--narrow">
 <h1>Политика в отношении обработки персональных данных</h1>
 <p class="date">Редакция от 23 октября 2026 г.</p>
 <h2>1. Общие положения</h2>
@@ -93,12 +97,61 @@
 <p>Оператор вправе изменять Политику. Новая редакция вступает в силу с момента публикации на Сайте, если иное не указано в ней.</p>
 <h2>13. Реквизиты Оператора</h2>
 <p>ООО «ПРО ТЕХНОЛОГИИ», ИНН 5609199039, ОГРН 1225600002781<br>Юридический адрес: 460052, Оренбургская область, г. Оренбург, Северный проезд, д. 1, кв. 12<br>Адрес офиса: 460048, Оренбургская область, г. Оренбург, проезд Автоматики, д. 10/3Б, офис 10<br>Email: info@pro-technologii.ru<br>Телефон: +7 (996) 924-16-48</p>
+</div></section>
 </main>
-<footer class="bottom">
-  <div class="bottom-in">
-    <span>© 2026 ООО «Про технологии», Оренбург</span>
-    <span><a href="/privacy">Политика конфиденциальности</a></span>
+
+<!-- ПОДВАЛ -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__grid">
+      <div class="footer__about">
+        <div class="logo"><span class="logo__mark" aria-hidden="true">🔑</span>Ключевик</div>
+        <p>Платформа системного привлечения органического трафика с помощью команды AI-агентов.</p>
+        <button class="btn btn--sm" type="button" data-open-modal>📅 Записаться на демо</button>
+      </div>
+      <nav class="footer__col" aria-label="Платформа">
+        <h4>Платформа</h4>
+        <a href="/#problems">Задачи</a><a href="/#difference">Отличие</a><a href="/#features">Возможности</a><a href="/#agents">AI-агенты</a><a href="/#audience">Для кого</a><a href="/#calc">Стоимость</a><a href="/#faq">Вопросы</a>
+      </nav>
+      <nav class="footer__col" aria-label="Компания">
+        <h4>Компания</h4>
+        <a href="/about">О нас</a><a href="#">Блог</a><a href="/#contact">Обратная связь</a>
+      </nav>
+      <div class="footer__col">
+        <h4>Контакты</h4>
+        <span><a href="tel:+79969241648">+7 996 924-16-48</a></span><span><a href="mailto:info@pro-technologii.ru">info@pro-technologii.ru</a></span>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2026 Про технологии.</span>
+      <span class="footer__legal"><a href="/privacy">Политика конфиденциальности</a><a href="#">[Пользовательское соглашение]</a></span>
+    </div>
   </div>
 </footer>
+
+<!-- ПОП-АП -->
+<dialog class="modal" id="modal" aria-labelledby="modal-title">
+  <button class="x" type="button" aria-label="Закрыть" data-close-modal>✕</button>
+  <form class="form" id="demo-form">
+    <div>
+      <div class="modal__emoji" aria-hidden="true">📅</div>
+      <h3 id="modal-title">Запишитесь на демонстрацию</h3>
+      <p>Покажем, как Ключевик превращает поисковый спрос в органический трафик. Оставьте контакты — свяжемся.</p>
+    </div>
+    <label>Имя<input class="inp" type="text" name="name" autocomplete="name" required placeholder="Как к вам обращаться"></label>
+    <label>Телефон<input class="inp" type="tel" name="phone" autocomplete="tel" required placeholder="+7 ___ ___-__-__"></label>
+    <label>Сайт<input class="inp" type="text" name="site" required placeholder="example.ru"></label>
+    <label class="agree"><input type="checkbox" required><span>Согласен на обработку персональных данных (<a href="/privacy" target="_blank">политика</a>)</span></label>
+    <button class="btn btn--block" type="submit">Записаться на демо</button>
+  </form>
+  <div class="done" id="demo-done" hidden>
+    <div class="done__emoji" aria-hidden="true">🎉</div>
+    <h3>Заявка отправлена!</h3>
+    <p>Спасибо! Мы свяжемся с вами, чтобы согласовать время демонстрации.</p>
+    <button class="btn" type="button" data-close-modal>Отлично</button>
+  </div>
+</dialog>
+
+<script src="script.js"></script>
 </body>
 </html>
