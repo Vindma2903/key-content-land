@@ -44,13 +44,106 @@
 
 <main id="main">
 
-<!-- HERO -->
-<section class="hero">
-  <div class="wrap hero__inner">
-    <span class="pill">🚀 <span class="hide-phone">Платформа органического трафика на AI-агентах</span><span class="show-phone">Платформа органического трафика</span></span>
-    <h1><span class="hide-phone">Превращаем поисковый спрос в системный источник <span class="accent">органического трафика</span></span><span class="show-phone">Поисковый спрос → <span class="accent">органический трафик</span></span></h1>
-    <p>Команда AI-агентов анализирует спрос, строит карту тем и создаёт материалы по стратегии.</p>
-    <button class="btn btn--lg" type="button" data-open-modal><span class="hide-phone">📅 Записаться на демонстрацию</span><span class="show-phone">📅 Записаться на демо</span></button>
+<!-- HERO: экспресс-анализ сайта (6 состояний) -->
+<section class="hs" id="hs" aria-live="polite">
+  <div class="wrap">
+
+    <!-- 1. Вставка ссылки -->
+    <div class="hs-panel hs-center" data-hs="input">
+      <span class="pill">🔎 Экспресс-анализ вашего сайта</span>
+      <h1 class="hs-h1">Вставьте ссылку на сайт — получите первую <span class="accent">карту спроса</span></h1>
+      <p class="hs-lead">Покажем, как Ключевик видит ваш бизнес: бренд, УТП, аудиторию, услуги и спрос по ключевым направлениям.</p>
+      <form class="hs-form" id="hs-form" novalidate>
+        <input class="hs-inp" id="hs-site" name="site" type="text" inputmode="url" autocomplete="url" placeholder="https://ваш-сайт.ru" aria-label="Ссылка на сайт">
+        <button type="submit" class="hs-go">Проанализировать →</button>
+      </form>
+      <p class="hs-err" id="hs-err" hidden>Введите адрес сайта, например example.ru</p>
+      <div class="hs-steps3">
+        <span class="chip">1️⃣ Вставляете ссылку</span><b>→</b><span class="chip">2️⃣ Агенты читают сайт</span><b>→</b><span class="chip">3️⃣ Получаете первые результаты</span>
+      </div>
+    </div>
+
+    <!-- 2. Идёт анализ -->
+    <div class="hs-panel hs-center" data-hs="run" hidden>
+      <span class="pill">⏳ Анализируем сайт</span>
+      <h2 class="hs-h2c" id="hs-domain-run"></h2>
+      <p class="hs-lead">Команда AI-агентов собирает первые результаты</p>
+      <div class="hs-list" id="hs-run-steps"></div>
+    </div>
+
+    <!-- 3. Первые результаты -->
+    <div class="hs-panel" data-hs="result" hidden>
+      <div class="hs-head">
+        <div><span class="pill">✅ Первые результаты</span><h2 class="hs-h2">Так Ключевик видит <span class="accent" id="hs-domain-res"></span></h2></div>
+      </div>
+      <div class="hs-cards4">
+        <div class="hs-card"><div class="hs-lab">🏷️ Бренд</div><div class="hs-card__t">Клининговая компания «Чистый дом»</div><div class="hs-card__s">Уборка квартир, домов и офисов для частных клиентов и малых компаний</div></div>
+        <div class="hs-card"><div class="hs-lab">💎 УТП</div><div class="hs-card__l">✅ Выезд в день обращения<br>✅ Фиксированная цена по смете<br>✅ Повторная уборка при замечаниях</div></div>
+        <div class="hs-card"><div class="hs-lab">👥 Аудитория</div><div class="hs-card__l">🏠 Владельцы квартир<br>🔑 Арендодатели<br>🏢 Офис-менеджеры</div></div>
+        <div class="hs-card"><div class="hs-lab">🧰 Услуги</div><div class="hs-chips"><span class="chip">Квартиры</span><span class="chip">После ремонта</span><span class="chip">Офисы</span><span class="chip">Мебель</span></div></div>
+      </div>
+      <div class="hs-card hs-tree">
+        <div class="hs-tree__head"><div><div class="hs-lab">📈 Дерево спроса</div><div class="hs-card__s">Ниша → направления → запросы. Показов в месяц по данным Яндекс Вордстата</div></div><div class="hs-legend"><span>✅ есть материал на сайте</span><span>💡 материала нет</span></div></div>
+        <div class="hs-tree__body">
+          <div class="hs-niche"><div class="hs-niche__k">НИША</div><div class="hs-niche__t">Клининговые услуги</div><div class="hs-niche__n">639 500</div><div class="hs-niche__u">показов в месяц</div></div>
+          <div class="hs-dirs" id="hs-dirs"></div>
+        </div>
+      </div>
+      <div class="hs-cta">
+        <div><div class="hs-cta__t">Хотите увидеть, что напишут агенты?</div><div class="hs-cta__s">Создайте пробную статью по одному из запросов дерева. Цифры в примере условные.</div></div>
+        <div class="hs-cta__btns"><button type="button" class="hs-white" data-hs-go="topic">✨ Создать пробную статью</button><button type="button" class="hs-outline" data-open-modal>📅 Демо</button></div>
+      </div>
+    </div>
+
+    <!-- 4. Выбор запроса и площадки -->
+    <div class="hs-panel" data-hs="topic" hidden>
+      <div class="hs-head">
+        <div><span class="pill">✨ Следующий шаг</span><h2 class="hs-h2">Создайте пробную статью <span class="accent">по найденному запросу</span></h2><p class="hs-lead hs-lead--l">Выберите точку роста из дерева спроса — AI-агенты подготовят статью для Дзен.</p></div>
+        <button type="button" class="hs-ghost" data-hs-go="result">← К дереву спроса</button>
+      </div>
+      <div class="hs-two">
+        <div class="hs-card hs-topics"><div class="hs-lab">Выберите запрос <span>· показов в месяц, Яндекс Вордстат</span></div><div id="hs-topics" class="hs-topics__list" role="radiogroup" aria-label="Запрос для статьи"></div></div>
+        <div class="hs-side">
+          <div class="hs-card hs-fmt"><div class="hs-lab">Формат пробной статьи</div>
+            <div class="hs-fmt__sel"><span>📰</span><div><b>Статья для Дзен</b><small>Заголовок, структура и оформление под площадку</small></div></div>
+            <div class="hs-card__s">Пробная статья готовится для Дзен. В платформе также доступны другие площадки:</div>
+            <div class="hs-chips"><span class="chip">🌐 Сайт</span><span class="chip">✈️ Телеграм</span><span class="chip">💬 ТенЧат</span></div>
+          </div>
+          <div class="hs-blue"><div class="hs-blue__t">Пробная статья по запросу</div><button type="button" class="hs-white hs-white--w" id="hs-start">✨ Создать пробную статью</button><div class="hs-blue__s">🎁 Пробная статья бесплатно</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Создаём статью -->
+    <div class="hs-panel hs-center" data-hs="gen" hidden>
+      <span class="pill">⏳ Агенты работают</span>
+      <h2 class="hs-h2c">Создаём пробную статью</h2>
+      <p class="hs-lead">Запрос: «<span id="hs-sel-gen"></span>» · Дзен · статья</p>
+      <div class="hs-list" id="hs-gen-steps"></div>
+    </div>
+
+    <!-- 6. Статья готова -->
+    <div class="hs-panel" data-hs="article" hidden>
+      <div class="hs-head"><div><span class="pill">✅ Пробная статья готова</span><h2 class="hs-h2">Вот что подготовили агенты</h2></div></div>
+      <div class="hs-two hs-two--art">
+        <div class="hs-card hs-art">
+          <div class="hs-chips"><span class="chip">📍 Дзен · статья</span><span class="chip">🔎 Запрос: <span id="hs-sel-art"></span></span><span class="chip">📝 ≈ 1 200 слов</span></div>
+          <h3 class="hs-art__t" id="hs-art-title"></h3>
+          <p class="hs-art__p">Если вы ищете «<span id="hs-sel-art2"></span>», важно сначала понять, какие варианты есть и чем они отличаются. В этой статье разбираем, на что смотреть до заказа и как сравнить предложения.</p>
+          <div class="hs-art__h">1. Что входит в услугу</div><p class="hs-art__s">Состав работ зависит от исполнителя, поэтому перед заказом уточните, что именно включено и какие материалы используются.</p>
+          <div class="hs-art__h">2. От чего зависит цена</div><p class="hs-art__s">На стоимость влияют объём работ, сложность задачи и срочность — сравнивайте предложения по одинаковым условиям.</p>
+          <div class="hs-art__h">3. Как выбрать исполнителя</div><p class="hs-art__s">Смотрите на описание процесса, отзывы и условия гарантии: они говорят о качестве больше, чем цена.</p>
+          <div class="hs-art__fade" aria-hidden="true"></div>
+        </div>
+        <div class="hs-side">
+          <div class="hs-card"><div class="hs-lab">Что внутри</div><div class="hs-card__l">✅ Структура подобрана под запрос<br>✅ Заголовки и разделы расставлены<br>✅ Оформление под площадку</div></div>
+          <div class="hs-card hs-card--mist"><div class="hs-lab">🎁 Пробная статья</div><div class="hs-card__t hs-card__t--big">Использована 1 из 1</div></div>
+          <div class="hs-card"><div class="hs-lab">Другие площадки</div><div class="hs-card__s">Кроме Дзен, в платформе доступны:</div><div class="hs-chips"><span class="chip">🌐 Сайт</span><span class="chip">✈️ Телеграм</span><span class="chip">💬 ТенЧат</span></div></div>
+          <div class="hs-blue"><div class="hs-blue__t">Хотите больше статей? Покажем, как это работает на вашем проекте</div><button type="button" class="hs-white hs-white--w" data-open-modal>📅 Записаться на демонстрацию</button></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
