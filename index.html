@@ -19,13 +19,13 @@
 <!-- ШАПКА -->
 <header class="header">
   <div class="wrap header__row">
-    <a class="logo" href="#top"><span class="logo__mark" aria-hidden="true">🔑</span>Ключевик</a>
+    <a class="logo" href="/"><span class="logo__mark" aria-hidden="true">🔑</span>Ключевик</a>
     <nav class="nav" aria-label="Основное меню">
       <a href="#features">Возможности</a>
       <a href="#audience">Для кого</a>
       <a href="#calc">Стоимость</a>
       <a href="#faq">Вопросы</a>
-      <a href="#">Блог</a>
+      <a href="/blog/">Блог</a>
     </nav>
     <div class="header__actions">
       <button class="btn btn--sm" type="button" data-open-modal><span class="hide-phone">📅 Записаться на демо</span><span class="show-phone">📅 Демо</span></button>
@@ -37,7 +37,7 @@
     <a href="#audience">Для кого</a>
     <a href="#calc">Стоимость</a>
     <a href="#faq">Вопросы</a>
-    <a href="#">Блог</a>
+    <a href="/blog/">Блог</a>
     <button class="btn" type="button" data-open-modal><span class="hide-phone">📅 Записаться на демонстрацию</span><span class="show-phone">📅 Записаться на демо</span></button>
   </div>
 </header>
@@ -101,7 +101,7 @@
       </div>
       <div class="hs-cta">
         <div><div class="hs-cta__t">Хотите увидеть, что напишут агенты?</div><div class="hs-cta__s">Создайте бесплатную пробную статью по одной из найденных фраз — регистрация не нужна.</div></div>
-        <div class="hs-cta__btns"><button type="button" class="hs-white" data-hs-go="topic">✨ Создать пробную статью</button><button type="button" class="hs-outline" data-hs-lead>📩 Оставить заявку</button><button type="button" class="hs-outline" data-hs-reset>Проверить другой сайт</button></div>
+        <div class="hs-cta__btns"><button type="button" class="hs-white" data-hs-go="topic">✨ Создать пробную статью</button><button type="button" class="hs-outline" data-hs-reset>Проверить другой сайт</button></div>
       </div>
     </div>
 
@@ -141,13 +141,12 @@
           <div class="hs-chips" id="hs-art-chips"></div>
           <h3 class="hs-art__t" id="hs-art-title"></h3>
           <div class="hs-art__body" id="hs-art-body"></div>
-          <div class="hs-art__fade" id="hs-art-fade" aria-hidden="true" hidden></div>
         </div>
         <div class="hs-side">
           <div class="hs-card"><div class="hs-lab">Что внутри</div><div class="hs-card__l">✅ Структура подобрана под фразу<br>✅ Заголовки и разделы расставлены<br>✅ Оформление под площадку</div></div>
           <div class="hs-card hs-card--mist"><div class="hs-lab">🎁 Пробная статья</div><div class="hs-card__t hs-card__t--big">Использована 1 из 1</div></div>
           <button type="button" class="hs-ghost" id="hs-copy">📋 Скопировать текст</button>
-          <div class="hs-blue"><div class="hs-blue__t">Хотите больше статей? Покажем, как это работает на вашем проекте</div><button type="button" class="hs-white hs-white--w" data-hs-lead>📩 Оставить заявку</button><button type="button" class="hs-outline" data-hs-reset>Проверить другой сайт</button></div>
+          <button type="button" class="hs-ghost" data-hs-reset>Проверить другой сайт</button>
         </div>
       </div>
     </div>
@@ -171,7 +170,6 @@
       <h2 class="hs-h2c" id="hs-error-t" tabindex="-1" data-hs-focus></h2>
       <p class="hs-lead" id="hs-error-d" role="alert"></p>
       <div class="hs-cta__btns hs-err-btns">
-        <button type="button" class="hs-go" data-hs-lead>📩 Оставить заявку</button>
         <button type="button" class="hs-ghost" id="hs-error-retry" hidden>Попробовать ещё раз</button>
         <button type="button" class="hs-ghost" data-hs-reset>Проверить другой сайт</button>
       </div>
@@ -185,28 +183,6 @@
       <div class="hs-cta__btns hs-err-btns">
         <button type="button" class="hs-go" data-open-modal>📅 Записаться на демо</button>
         <a class="hs-ghost hs-link" href="#demo">Как проходит демонстрация</a>
-      </div>
-    </div>
-
-    <!-- заявка: показывается вместе с результатами и ошибками -->
-    <div class="hs-lead-box" id="hs-lead-box" hidden>
-      <form class="form hs-leadform" id="hs-lead-form" novalidate aria-labelledby="hs-lead-t">
-        <div>
-          <h3 class="hs-lead-t" id="hs-lead-t" tabindex="-1">Оставьте заявку — покажем на вашем проекте</h3>
-          <p class="hs-card__s">Свяжемся в рабочее время. Выбранная фраза и площадка передадутся вместе с заявкой.</p>
-        </div>
-        <label>Имя<input class="inp" type="text" name="name" autocomplete="name" required placeholder="Как к вам обращаться"></label>
-        <label>Телефон<input class="inp" type="tel" name="phone" autocomplete="tel" required placeholder="+7 ___ ___-__-__"></label>
-        <label>Сайт<input class="inp" type="text" name="site" autocomplete="url" placeholder="example.ru"></label>
-        <label class="hs-trap" aria-hidden="true">Не заполняйте это поле<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
-        <label class="agree"><input type="checkbox" name="agree" required><span>Согласен на обработку персональных данных и с <a href="/privacy" target="_blank" rel="noopener">политикой конфиденциальности</a></span></label>
-        <p class="hs-err" id="hs-lead-err" role="alert" hidden></p>
-        <button class="btn btn--block" type="submit" id="hs-lead-go">Отправить заявку</button>
-      </form>
-      <div class="done" id="hs-lead-done" hidden>
-        <div class="done__emoji" aria-hidden="true">✅</div>
-        <h3 tabindex="-1" id="hs-lead-done-t">Заявка отправлена</h3>
-        <p>Свяжемся в рабочее время.</p>
       </div>
     </div>
 
@@ -669,7 +645,7 @@
       </nav>
       <nav class="footer__col" aria-label="Компания">
         <h4>Компания</h4>
-        <a href="/about">О нас</a><a href="#">Блог</a><a href="#contact">Обратная связь</a>
+        <a href="/about">О нас</a><a href="/blog/">Блог</a><a href="#contact">Обратная связь</a>
       </nav>
       <div class="footer__col">
         <h4>Контакты</h4>
