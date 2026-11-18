@@ -1,7 +1,4 @@
 /* ============ Настройки страницы ============ */
-// Затухание текста пробной статьи: false — статья показывается целиком; true — после первых абзацев текст гаснет
-// и открывается полностью только после отправки заявки (форма внизу блока).
-var ARTICLE_FADE = false;
 // Номер счётчика Яндекс Метрики для целей демо. null — цели не отправляются. Счётчик подключает владелец сайта.
 var METRIKA_ID = null;
 // Адрес публичного API демо платформы (тот же домен, куки и CORS не нужны).
@@ -262,7 +259,6 @@ var DEMO_API = '/api/v1/public/demo';
   var STORE_KEY = 'kw_demo';
   var WAIT_LIMIT_MS = 4 * 60 * 1000;      // общий предел ожидания анализа и статьи
   var FREQ_WAIT_MS = 100 * 1000;          // сервер сам переводит «считаем» в «уточняется» через 90 секунд после результатов
-  var FADE_BLOCKS = 5;                    // сколько блоков статьи видно при ARTICLE_FADE = true
   var DEFAULT_PLATFORMS = ['telegram', 'blog'];
   var PLATFORM_LABELS = {
     telegram: ['✈️', 'Телеграм', 'пост для канала'],
@@ -272,11 +268,11 @@ var DEMO_API = '/api/v1/public/demo';
   };
   var STEP_ICONS = { read: '🌐', profile: '🏷️', competitors: '🏁', phrases: '🧩', measure: '📈' };
   var GEN_STEPS = [['🧩', 'Подбираем структуру'], ['✍️', 'Пишем текст'], ['🎨', 'Оформляем под площадку']];
-  var LEAD_SCREENS = { result: 1, topic: 1, article: 1, error: 1, niche: 1 };
+  var FOCUS_OFF_SCREENS = { input: 1, off: 1 };   // на этих экранах страница полная, на остальных — только демо
 
   var state = {
     screen: 'input', cfg: null, id: '', token: '', domain: '', view: null, result: null,
-    chosen: { phrase: '', platform: '' }, article: null, leadSent: false, idem: { url: '', key: '' }, busy: false
+    chosen: { phrase: '', platform: '' }, article: null, idem: { url: '', key: '' }, busy: false
   };
   var panels = {};
   Array.prototype.forEach.call(root.querySelectorAll('[data-hs]'), function (p) { panels[p.getAttribute('data-hs')] = p; });
@@ -374,13 +370,11 @@ var DEMO_API = '/api/v1/public/demo';
     opts = opts || {};
     state.screen = name;
     Object.keys(panels).forEach(function (k) { panels[k].hidden = k !== name; });
-    var box = $('hs-lead-box');
-    box.hidden = !LEAD_SCREENS[name];
-    if (LEAD_SCREENS[name] && !state.leadSent) {
-      var f = $('hs-lead-form').elements;
-      if (!f.site.value) f.site.value = state.domain || '';
-    }
+    // режим фокуса: пока идёт демо, остальные блоки страницы скрыты (стили — .demo-focus в styles.css)
+    var entering = !FOCUS_OFF_SCREENS[name] && !document.documentElement.classList.contains('demo-focus');
+    document.documentElement.classList.toggle('demo-focus', !FOCUS_OFF_SCREENS[name]);
     if (opts.quiet) return;
+    if (entering) window.scrollTo(0, 0);
     var top = root.getBoundingClientRect().top;
     if (top < 0) window.scrollTo({ top: window.pageYOffset + top - 84, behavior: 'smooth' });
     var h = panels[name].querySelector('[data-hs-focus]');
@@ -389,17 +383,17 @@ var DEMO_API = '/api/v1/public/demo';
 
   /* ---------- ошибки: человеческие тексты и что делать ---------- */
   var ERR = {
-    net: ['Связь прервана', 'Не удаётся связаться с сервером. Проверьте интернет и попробуйте ещё раз — или оставьте заявку.'],
-    timeout_run: ['Анализ идёт дольше обычного', 'Оставьте заявку — мы пришлём результат. Можно и подождать ещё.'],
-    timeout_gen: ['Статья готовится дольше обычного', 'Оставьте заявку — мы пришлём статью. Выбранные фраза и площадка сохранены. Можно и подождать ещё.'],
-    analysis_failed: ['Не удалось завершить анализ', 'Попробуйте ещё раз позже, проверьте другой адрес или оставьте заявку.'],
-    forbidden: ['Этот сайт нельзя анализировать', 'Введите адрес вашего собственного сайта или оставьте заявку.'],
-    limit: ['На сегодня демо закончилось', 'С вашего адреса слишком много попыток. Попробуйте позже или оставьте заявку — покажем анализ вручную.'],
-    capacity: ['Демо сейчас занято', 'Дневной лимит демо исчерпан или очередь заполнена. Попробуйте позже или оставьте заявку — покажем анализ вашего сайта вручную.'],
-    captcha: ['Проверка не пройдена', 'Обновите страницу и попробуйте ещё раз или оставьте заявку.'],
+    net: ['Связь прервана', 'Не удаётся связаться с сервером. Проверьте интернет и попробуйте ещё раз.'],
+    timeout_run: ['Анализ идёт дольше обычного', 'Можно подождать ещё или проверить другой сайт.'],
+    timeout_gen: ['Статья готовится дольше обычного', 'Выбранные фраза и площадка сохранены. Можно подождать ещё.'],
+    analysis_failed: ['Не удалось завершить анализ', 'Попробуйте ещё раз позже или проверьте другой адрес.'],
+    forbidden: ['Этот сайт нельзя анализировать', 'Введите адрес вашего собственного сайта.'],
+    limit: ['На сегодня демо закончилось', 'С вашего адреса слишком много попыток. Попробуйте позже.'],
+    capacity: ['Демо сейчас занято', 'Дневной лимит демо исчерпан или очередь заполнена. Попробуйте позже.'],
+    captcha: ['Проверка не пройдена', 'Обновите страницу и попробуйте ещё раз.'],
     expired: ['Демо устарело', 'Срок анализа истёк или он уже удалён. Запустите проверку заново.'],
-    article_exists: ['Пробная статья уже создавалась', 'На один анализ — одна пробная статья. Оставьте заявку — покажем больше на вашем проекте.'],
-    generic: ['Что-то пошло не так', 'Попробуйте ещё раз позже или оставьте заявку.']
+    article_exists: ['Пробная статья уже создавалась', 'На один анализ — одна пробная статья. Можно проверить другой сайт.'],
+    generic: ['Что-то пошло не так', 'Попробуйте ещё раз позже.']
   };
   var RETRY = { net: 'Попробовать ещё раз', timeout_run: 'Подождать ещё', timeout_gen: 'Подождать ещё', expired: 'Запустить заново' };
 
@@ -623,7 +617,7 @@ var DEMO_API = '/api/v1/public/demo';
     stopPoll();
     renderTopics();
     var e = $('hs-topic-err');
-    e.textContent = 'Не получилось написать статью. Попробуйте другую фразу или оставьте заявку — покажем статью вручную.';
+    e.textContent = 'Не получилось написать статью. Попробуйте другую фразу.';
     e.hidden = false;
     $('hs-start').disabled = false;
     show('topic');
@@ -970,11 +964,9 @@ var DEMO_API = '/api/v1/public/demo';
   }
 
   /* ---------- состояние 6: пробная статья ---------- */
-  function articleBlocks(a, limit) {
-    var wrap = document.createDocumentFragment(), ul = null, shown = 0;
+  function articleBlocks(a) {
+    var wrap = document.createDocumentFragment(), ul = null;
     (a.blocks || []).forEach(function (b) {
-      if (limit && shown >= limit) return;
-      shown += 1;
       if (b.type === 'li') {
         if (!ul) { ul = el('ul'); wrap.appendChild(ul); }
         ul.appendChild(el('li', null, b.text));
@@ -986,8 +978,6 @@ var DEMO_API = '/api/v1/public/demo';
     return wrap;
   }
 
-  function fadeOn() { return ARTICLE_FADE && !state.leadSent; }
-
   function renderArticle(a) {
     if (!a) return;
     var chips = clear($('hs-art-chips'));
@@ -996,10 +986,7 @@ var DEMO_API = '/api/v1/public/demo';
     if (a.words) chips.appendChild(el('span', 'chip', '📝 ' + fmt(a.words) + ' ' + wordsWord(a.words)));
     $('hs-art-title').textContent = a.title || '';
     var body = clear($('hs-art-body'));
-    body.appendChild(articleBlocks(a, fadeOn() ? FADE_BLOCKS : 0));
-    $('hs-art').classList.toggle('is-fade', fadeOn());
-    $('hs-art-fade').hidden = !fadeOn();
-    $('hs-copy').hidden = fadeOn();
+    body.appendChild(articleBlocks(a));
   }
 
   function articleText(a) {
@@ -1069,76 +1056,19 @@ var DEMO_API = '/api/v1/public/demo';
     state.chosen = { phrase: '', platform: '' }; state.idem = { url: '', key: '' };
     state.busy = false;
     clear($('hs-dirs')); clear($('hs-run-steps'));
-    resetLead();
-    $('hs-lead-form').reset();
     $('hs-go').disabled = false;
     inputError('');
     show('input');
     $('hs-site').focus();
   }
 
-  /* ---------- заявка (форма внизу) ---------- */
-  function resetLead() {
-    state.leadSent = false;
-    $('hs-lead-form').hidden = false;
-    $('hs-lead-done').hidden = true;
-    $('hs-lead-err').hidden = true;
-  }
-
-  function openLead() {
-    goal('demo_lead_open');
-    var box = $('hs-lead-box');
-    box.hidden = false;
-    var f = $('hs-lead-form').elements;
-    if (!f.site.value) f.site.value = state.domain || '';
-    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    var focusEl = state.leadSent ? $('hs-lead-done-t') : f.name;
-    setTimeout(function () { try { focusEl.focus({ preventScroll: true }); } catch (e) { focusEl.focus(); } }, 350);
-  }
-
-  function leadMessage() {
-    var lines = [];
-    if (state.id) lines.push('ID демо: ' + state.id);
-    if (state.chosen.phrase) lines.push('Фраза: ' + state.chosen.phrase);
-    if (state.chosen.platform) lines.push('Площадка: ' + plainPlatform(state.chosen.platform));
-    return lines.join('\n');
-  }
-
-  function submitLead(ev) {
-    ev.preventDefault();
-    var form = $('hs-lead-form'), f = form.elements, err = $('hs-lead-err'), btn = $('hs-lead-go');
-    if (state.busy) return;
-    var phone = f.phone.value.replace(/\D/g, '');
-    var problem = '';
-    if (!f.name.value.trim()) problem = 'Укажите имя.';
-    else if (phone.length < 10) problem = 'Укажите телефон, например +7 900 000-00-00.';
-    else if (!f.agree.checked) problem = 'Нужно согласие на обработку персональных данных.';
-    if (problem) { err.textContent = problem; err.hidden = false; return; }
-    err.hidden = true;
-    setBusy(btn, true, 'Отправляем…');
-    fetch('/lead-api', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        form: 'Демо на сайте', name: f.name.value, phone: f.phone.value, site: f.site.value,
-        message: leadMessage(), website: f.website.value
-      })
-    }).then(function (r) {
-      if (!r.ok) throw new Error('bad status');
-      setBusy(btn, false);
-      state.leadSent = true;
-      goal('demo_lead_sent');
-      form.hidden = true;
-      $('hs-lead-done').hidden = false;
-      $('hs-lead-done-t').focus();
-      say('Заявка отправлена. Свяжемся в рабочее время.');
-      if (state.screen === 'article' && state.article) renderArticle(state.article); // снять затухание текста
-    }).catch(function () {
-      setBusy(btn, false);
-      err.textContent = 'Не удалось отправить заявку. Позвоните нам: +7 996 924-16-48';
-      err.hidden = false;
-    });
-  }
+  /* логотип в шапке — возврат к исходному виду: демо сбрасывается, режим фокуса снимается, страница прокручивается к началу */
+  var logo = document.querySelector('.header .logo');
+  if (logo) logo.addEventListener('click', function (e) {
+    e.preventDefault();
+    if (state.screen !== 'off') { resetToInput({ del: true }); $('hs-site').value = ''; }
+    window.scrollTo(0, 0);
+  });
 
   /* ---------- события ---------- */
   $('hs-form').addEventListener('submit', startAnalysis);
@@ -1147,13 +1077,11 @@ var DEMO_API = '/api/v1/public/demo';
   $('hs-start').addEventListener('click', startArticle);
   $('hs-copy').addEventListener('click', copyArticle);
   $('hs-cancel').addEventListener('click', function () { resetToInput({ del: true }); });
-  $('hs-lead-form').addEventListener('submit', submitLead);
   $('hs-error-retry').addEventListener('click', function () { if (retryAction) retryAction(); });
 
   root.addEventListener('click', function (e) {
-    var t = e.target.closest('[data-hs-go], [data-hs-lead], [data-hs-reset], [data-pick]');
+    var t = e.target.closest('[data-hs-go], [data-hs-reset], [data-pick]');
     if (!t) return;
-    if (t.hasAttribute('data-hs-lead')) { openLead(); return; }
     if (t.hasAttribute('data-hs-reset')) { resetToInput(); return; }
     if (t.hasAttribute('data-pick')) {
       state.chosen.phrase = state.result.phrases[+t.getAttribute('data-pick')].phrase;

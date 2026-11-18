@@ -710,7 +710,6 @@ button.hs-kw:hover .hs-kw__n{color:var(--blue-t)}
 .hs-art__p{margin-top:14px;font-size:17px;line-height:1.65}
 .hs-art__h{margin-top:20px;font-family:var(--fh);font-weight:800;font-size:20px}
 .hs-art__s{margin-top:6px;font-size:16px;line-height:1.65;color:var(--gray)}
-.hs-art__fade{position:absolute;left:0;right:0;bottom:0;height:110px;background:linear-gradient(rgba(255,255,255,0),#fff)}
 
 @media (max-width:1080px){
   .hs-cards4{grid-template-columns:1fr 1fr}
@@ -790,7 +789,6 @@ button.hs-kw:hover .hs-kw__n{color:var(--blue-t)}
 .hs-plat:hover{border-color:var(--sky)}
 .hs-plat.is-sel{background:var(--mist);border-color:var(--blue)}
 .hs-plat small{display:block;font-weight:400;font-size:13px;color:var(--gray)}
-.hs-art.is-fade{max-height:640px}
 .hs-art__body{margin-top:8px}
 .hs-art__body h4,.hs-art__body h5{font-family:var(--fh);font-weight:800}
 .hs-art__body h4{margin-top:22px;font-size:21px}
@@ -801,14 +799,9 @@ button.hs-kw:hover .hs-kw__n{color:var(--blue-t)}
 .hs-art__t{overflow-wrap:anywhere}
 .hs-err-btns{margin-top:28px;justify-content:center}
 .hs-err-btns .hs-go{padding:0 28px}
-.hs-lead-box{margin:36px auto 0;max-width:560px;padding:28px;border:1.5px solid var(--line);border-radius:22px;background:#fff}
-.hs-lead-box[hidden]{display:none}
-.hs-lead-t{font-size:24px;font-weight:800;line-height:1.2}
-.hs-lead-t:focus,.hs-lead-box .done h3:focus{outline:none}
-.hs-trap{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}
-.hs-lead-box .hs-card__s{margin-top:8px}
+/* режим фокуса: демо запущено — остаются шапка (логотип и «Блог») и первый экран; остальное, ссылки на скрытые разделы и кнопка записи скрыты (display:none: нет и в дереве доступности) */
+.demo-focus main>:not(#hs),.demo-focus .footer,.demo-focus .header__actions .btn,.demo-focus .nav a:not([href="/blog/"]),.demo-focus .mmenu a:not([href="/blog/"]),.demo-focus .mmenu .btn{display:none}
 @media (max-width:640px){
-  .hs-lead-box{padding:20px 16px}
   .hs-cta__btns .hs-white,.hs-cta__btns .hs-outline{flex:1 1 100%}
   .hs-err-btns{width:100%;flex-direction:column}
   .hs-err-btns>*{width:100%}
