@@ -44,20 +44,23 @@
 
 <main id="main">
 
-<!-- HERO: экспресс-анализ сайта (6 состояний) -->
-<section class="hs" id="hs" aria-live="polite">
+<!-- HERO: живой экспресс-анализ сайта (состояния 1–6, ошибки и запасная карточка; логика — script.js, блок «Первый экран») -->
+<section class="hs" id="hs">
   <div class="wrap">
+    <!-- короткие сообщения для скринридера: ход анализа и смена состояния -->
+    <div class="sr-only" id="hs-status" role="status" aria-live="polite"></div>
 
     <!-- 1. Вставка ссылки -->
     <div class="hs-panel hs-center" data-hs="input">
       <span class="pill">🔎 Экспресс-анализ вашего сайта</span>
-      <h1 class="hs-h1">Вставьте ссылку на сайт — получите первую <span class="accent">карту спроса</span></h1>
-      <p class="hs-lead">Покажем, как Ключевик видит ваш бизнес: бренд, УТП, аудиторию, услуги и спрос по ключевым направлениям.</p>
+      <h1 class="hs-h1" tabindex="-1" data-hs-focus>Вставьте ссылку на сайт — получите первую <span class="accent">карту спроса</span></h1>
+      <p class="hs-lead">Покажем, как Ключевик видит ваш бизнес: нишу, аудиторию, конкурентов и спрос по ключевым фразам с реальной частотой из Яндекс Вордстата.</p>
       <form class="hs-form" id="hs-form" novalidate>
-        <input class="hs-inp" id="hs-site" name="site" type="text" inputmode="url" autocomplete="url" placeholder="https://ваш-сайт.ru" aria-label="Ссылка на сайт">
-        <button type="submit" class="hs-go">Проанализировать →</button>
+        <input class="hs-inp" id="hs-site" name="site" type="text" inputmode="url" autocomplete="url" placeholder="https://ваш-сайт.ru" aria-label="Ссылка на сайт" aria-describedby="hs-err hs-consent" spellcheck="false" autocapitalize="off">
+        <button type="submit" class="hs-go" id="hs-go">Проанализировать →</button>
       </form>
-      <p class="hs-err" id="hs-err" hidden>Введите адрес сайта, например example.ru</p>
+      <p class="hs-err" id="hs-err" role="alert" hidden></p>
+      <p class="hs-consent" id="hs-consent">Нажимая кнопку, вы соглашаетесь, что мы прочитаем открытые страницы сайта. <a href="/privacy" target="_blank" rel="noopener">Политика конфиденциальности</a></p>
       <div class="hs-steps3">
         <span class="chip">1️⃣ Вставляете ссылку</span><b>→</b><span class="chip">2️⃣ Агенты читают сайт</span><b>→</b><span class="chip">3️⃣ Получаете первые результаты</span>
       </div>
@@ -66,50 +69,57 @@
     <!-- 2. Идёт анализ -->
     <div class="hs-panel hs-center" data-hs="run" hidden>
       <span class="pill">⏳ Анализируем сайт</span>
-      <h2 class="hs-h2c" id="hs-domain-run"></h2>
-      <p class="hs-lead">Команда AI-агентов собирает первые результаты</p>
-      <div class="hs-list" id="hs-run-steps"></div>
+      <h2 class="hs-h2c" id="hs-domain-run" tabindex="-1" data-hs-focus></h2>
+      <p class="hs-lead">Команда AI-агентов собирает первые результаты. Обычно это занимает 1–2 минуты.</p>
+      <p class="hs-queue" id="hs-queue" hidden></p>
+      <div class="hs-bar" id="hs-bar-run" role="progressbar" aria-label="Ход анализа" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>
+      <ol class="hs-list" id="hs-run-steps"></ol>
+      <button type="button" class="hs-ghost hs-cancel" id="hs-cancel">Отменить</button>
     </div>
 
     <!-- 3. Первые результаты -->
     <div class="hs-panel" data-hs="result" hidden>
       <div class="hs-head">
-        <div><span class="pill">✅ Первые результаты</span><h2 class="hs-h2">Так Ключевик видит <span class="accent" id="hs-domain-res"></span></h2></div>
+        <div><span class="pill">✅ Первые результаты</span><h2 class="hs-h2" tabindex="-1" data-hs-focus>Так Ключевик видит <span class="accent" id="hs-domain-res"></span></h2></div>
       </div>
       <div class="hs-cards4">
-        <div class="hs-card"><div class="hs-lab">🏷️ Бренд</div><div class="hs-card__t">Клининговая компания «Чистый дом»</div><div class="hs-card__s">Уборка квартир, домов и офисов для частных клиентов и малых компаний</div></div>
-        <div class="hs-card"><div class="hs-lab">💎 УТП</div><div class="hs-card__l">✅ Выезд в день обращения<br>✅ Фиксированная цена по смете<br>✅ Повторная уборка при замечаниях</div></div>
-        <div class="hs-card"><div class="hs-lab">👥 Аудитория</div><div class="hs-card__l">🏠 Владельцы квартир<br>🔑 Арендодатели<br>🏢 Офис-менеджеры</div></div>
-        <div class="hs-card"><div class="hs-lab">🧰 Услуги</div><div class="hs-chips"><span class="chip">Квартиры</span><span class="chip">После ремонта</span><span class="chip">Офисы</span><span class="chip">Мебель</span></div></div>
+        <div class="hs-card"><div class="hs-lab">🏷️ Бренд</div><div class="hs-card__t" id="hs-brand"></div><div class="hs-card__s" id="hs-brand-line"></div></div>
+        <div class="hs-card"><div class="hs-lab">🎯 Ниша</div><div class="hs-card__t" id="hs-niche"></div></div>
+        <div class="hs-card"><div class="hs-lab">👥 Аудитория</div><ul class="hs-card__l" id="hs-audience"></ul></div>
+        <div class="hs-card"><div class="hs-lab">🧰 Услуги</div><div class="hs-chips" id="hs-offers"></div></div>
+      </div>
+      <div class="hs-card hs-comp" id="hs-comp-card">
+        <div class="hs-lab">🏁 Конкуренты в выдаче Яндекса</div>
+        <ul class="hs-comp__list" id="hs-comp"></ul>
       </div>
       <div class="hs-card hs-tree">
-        <div class="hs-tree__head"><div><div class="hs-lab">📈 Дерево спроса</div><div class="hs-card__s">Ниша → направления → запросы. Показов в месяц по данным Яндекс Вордстата</div></div><div class="hs-legend"><span>✅ есть материал на сайте</span><span>💡 материала нет</span></div></div>
+        <div class="hs-tree__head"><div><div class="hs-lab">📈 Дерево спроса</div><div class="hs-card__s">Ниша → направления → фразы. Показов в месяц — только измеренные в Яндекс Вордстате; если замер не получен, так и написано.</div></div><div class="hs-legend" id="hs-legend" hidden><span>✅ есть материал на сайте</span><span>💡 материала нет</span><span>по прочитанным страницам</span></div></div>
         <div class="hs-tree__body">
-          <div class="hs-niche"><div class="hs-niche__k">НИША</div><div class="hs-niche__t">Клининговые услуги</div><div class="hs-niche__n">639 500</div><div class="hs-niche__u">показов в месяц</div></div>
+          <div class="hs-niche"><div class="hs-niche__k">НИША</div><div class="hs-niche__t" id="hs-niche-t"></div></div>
           <div class="hs-dirs" id="hs-dirs"></div>
         </div>
       </div>
       <div class="hs-cta">
-        <div><div class="hs-cta__t">Хотите увидеть, что напишут агенты?</div><div class="hs-cta__s">Создайте пробную статью по одному из запросов дерева. Цифры в примере условные.</div></div>
-        <div class="hs-cta__btns"><button type="button" class="hs-white" data-hs-go="topic">✨ Создать пробную статью</button><button type="button" class="hs-outline" data-open-modal>📅 Демо</button></div>
+        <div><div class="hs-cta__t">Хотите увидеть, что напишут агенты?</div><div class="hs-cta__s">Создайте бесплатную пробную статью по одной из найденных фраз — регистрация не нужна.</div></div>
+        <div class="hs-cta__btns"><button type="button" class="hs-white" data-hs-go="topic">✨ Создать пробную статью</button><button type="button" class="hs-outline" data-hs-lead>📩 Оставить заявку</button><button type="button" class="hs-outline" data-hs-reset>Проверить другой сайт</button></div>
       </div>
     </div>
 
-    <!-- 4. Выбор запроса и площадки -->
+    <!-- 4. Выбор фразы и площадки -->
     <div class="hs-panel" data-hs="topic" hidden>
       <div class="hs-head">
-        <div><span class="pill">✨ Следующий шаг</span><h2 class="hs-h2">Создайте пробную статью <span class="accent">по найденному запросу</span></h2><p class="hs-lead hs-lead--l">Выберите точку роста из дерева спроса — AI-агенты подготовят статью для Дзен.</p></div>
+        <div><span class="pill">✨ Следующий шаг</span><h2 class="hs-h2" tabindex="-1" data-hs-focus>Создайте пробную статью <span class="accent">по найденной фразе</span></h2><p class="hs-lead hs-lead--l">Выберите фразу и площадку — AI-агенты подготовят текст.</p></div>
         <button type="button" class="hs-ghost" data-hs-go="result">← К дереву спроса</button>
       </div>
       <div class="hs-two">
-        <div class="hs-card hs-topics"><div class="hs-lab">Выберите запрос <span>· показов в месяц, Яндекс Вордстат</span></div><div id="hs-topics" class="hs-topics__list" role="radiogroup" aria-label="Запрос для статьи"></div></div>
+        <div class="hs-card hs-topics"><div class="hs-lab" id="hs-topics-lab">Выберите фразу <span>· показов в месяц, Яндекс Вордстат</span></div><div id="hs-topics" class="hs-topics__list" role="radiogroup" aria-labelledby="hs-topics-lab"></div></div>
         <div class="hs-side">
-          <div class="hs-card hs-fmt"><div class="hs-lab">Формат пробной статьи</div>
-            <div class="hs-fmt__sel"><span>📰</span><div><b>Статья для Дзен</b><small>Заголовок, структура и оформление под площадку</small></div></div>
-            <div class="hs-card__s">Пробная статья готовится для Дзен. В платформе также доступны другие площадки:</div>
-            <div class="hs-chips"><span class="chip">🌐 Сайт</span><span class="chip">✈️ Телеграм</span><span class="chip">💬 ТенЧат</span></div>
+          <div class="hs-card hs-fmt"><div class="hs-lab" id="hs-plat-lab">Площадка</div>
+            <div class="hs-plats" id="hs-plats" role="radiogroup" aria-labelledby="hs-plat-lab"></div>
+            <div class="hs-card__s" id="hs-plat-more" hidden></div>
           </div>
-          <div class="hs-blue"><div class="hs-blue__t">Пробная статья по запросу</div><button type="button" class="hs-white hs-white--w" id="hs-start">✨ Создать пробную статью</button><div class="hs-blue__s">🎁 Пробная статья бесплатно</div></div>
+          <p class="hs-err" id="hs-topic-err" role="alert" hidden></p>
+          <div class="hs-blue"><div class="hs-blue__t">Пробная статья по выбранной фразе</div><button type="button" class="hs-white hs-white--w" id="hs-start">✨ Создать пробную статью</button><div class="hs-blue__s">🎁 Пробная статья бесплатно, регистрация не нужна</div></div>
         </div>
       </div>
     </div>
@@ -117,30 +127,86 @@
     <!-- 5. Создаём статью -->
     <div class="hs-panel hs-center" data-hs="gen" hidden>
       <span class="pill">⏳ Агенты работают</span>
-      <h2 class="hs-h2c">Создаём пробную статью</h2>
-      <p class="hs-lead">Запрос: «<span id="hs-sel-gen"></span>» · Дзен · статья</p>
-      <div class="hs-list" id="hs-gen-steps"></div>
+      <h2 class="hs-h2c" tabindex="-1" data-hs-focus>Создаём пробную статью</h2>
+      <p class="hs-lead">Фраза: «<span id="hs-sel-gen"></span>» · <span id="hs-sel-gen-p"></span></p>
+      <div class="hs-bar" id="hs-bar-gen" role="progressbar" aria-label="Ход создания статьи" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>
+      <ol class="hs-list" id="hs-gen-steps"></ol>
     </div>
 
     <!-- 6. Статья готова -->
     <div class="hs-panel" data-hs="article" hidden>
-      <div class="hs-head"><div><span class="pill">✅ Пробная статья готова</span><h2 class="hs-h2">Вот что подготовили агенты</h2></div></div>
+      <div class="hs-head"><div><span class="pill">✅ Пробная статья готова</span><h2 class="hs-h2" tabindex="-1" data-hs-focus>Вот что подготовили агенты</h2></div></div>
       <div class="hs-two hs-two--art">
-        <div class="hs-card hs-art">
-          <div class="hs-chips"><span class="chip">📍 Дзен · статья</span><span class="chip">🔎 Запрос: <span id="hs-sel-art"></span></span><span class="chip">📝 ≈ 1 200 слов</span></div>
+        <div class="hs-card hs-art" id="hs-art">
+          <div class="hs-chips" id="hs-art-chips"></div>
           <h3 class="hs-art__t" id="hs-art-title"></h3>
-          <p class="hs-art__p">Если вы ищете «<span id="hs-sel-art2"></span>», важно сначала понять, какие варианты есть и чем они отличаются. В этой статье разбираем, на что смотреть до заказа и как сравнить предложения.</p>
-          <div class="hs-art__h">1. Что входит в услугу</div><p class="hs-art__s">Состав работ зависит от исполнителя, поэтому перед заказом уточните, что именно включено и какие материалы используются.</p>
-          <div class="hs-art__h">2. От чего зависит цена</div><p class="hs-art__s">На стоимость влияют объём работ, сложность задачи и срочность — сравнивайте предложения по одинаковым условиям.</p>
-          <div class="hs-art__h">3. Как выбрать исполнителя</div><p class="hs-art__s">Смотрите на описание процесса, отзывы и условия гарантии: они говорят о качестве больше, чем цена.</p>
-          <div class="hs-art__fade" aria-hidden="true"></div>
+          <div class="hs-art__body" id="hs-art-body"></div>
+          <div class="hs-art__fade" id="hs-art-fade" aria-hidden="true" hidden></div>
         </div>
         <div class="hs-side">
-          <div class="hs-card"><div class="hs-lab">Что внутри</div><div class="hs-card__l">✅ Структура подобрана под запрос<br>✅ Заголовки и разделы расставлены<br>✅ Оформление под площадку</div></div>
+          <div class="hs-card"><div class="hs-lab">Что внутри</div><div class="hs-card__l">✅ Структура подобрана под фразу<br>✅ Заголовки и разделы расставлены<br>✅ Оформление под площадку</div></div>
           <div class="hs-card hs-card--mist"><div class="hs-lab">🎁 Пробная статья</div><div class="hs-card__t hs-card__t--big">Использована 1 из 1</div></div>
-          <div class="hs-card"><div class="hs-lab">Другие площадки</div><div class="hs-card__s">Кроме Дзен, в платформе доступны:</div><div class="hs-chips"><span class="chip">🌐 Сайт</span><span class="chip">✈️ Телеграм</span><span class="chip">💬 ТенЧат</span></div></div>
-          <div class="hs-blue"><div class="hs-blue__t">Хотите больше статей? Покажем, как это работает на вашем проекте</div><button type="button" class="hs-white hs-white--w" data-open-modal>📅 Записаться на демонстрацию</button></div>
+          <button type="button" class="hs-ghost" id="hs-copy">📋 Скопировать текст</button>
+          <div class="hs-blue"><div class="hs-blue__t">Хотите больше статей? Покажем, как это работает на вашем проекте</div><button type="button" class="hs-white hs-white--w" data-hs-lead>📩 Оставить заявку</button><button type="button" class="hs-outline" data-hs-reset>Проверить другой сайт</button></div>
         </div>
+      </div>
+    </div>
+
+    <!-- боковое: сайт закрыт для чтения, нужна ниша -->
+    <div class="hs-panel hs-center" data-hs="niche" hidden>
+      <span class="pill">✍️ Нужна подсказка</span>
+      <h2 class="hs-h2c" tabindex="-1" data-hs-focus>Сайт закрыт от чтения</h2>
+      <p class="hs-lead">Роботам нельзя читать страницы этого сайта, поэтому напишите нишу своими словами — мы продолжим без чтения сайта.</p>
+      <form class="hs-form" id="hs-niche-form" novalidate>
+        <input class="hs-inp" id="hs-niche-inp" name="niche" type="text" maxlength="200" aria-label="Ниша своими словами" aria-describedby="hs-niche-err" placeholder="Например: клининг квартир в Казани">
+        <button type="submit" class="hs-go" id="hs-niche-go">Продолжить →</button>
+      </form>
+      <p class="hs-err" id="hs-niche-err" role="alert" hidden></p>
+      <button type="button" class="hs-ghost" data-hs-reset>Проверить другой сайт</button>
+    </div>
+
+    <!-- боковое: ошибки и лимиты -->
+    <div class="hs-panel hs-center" data-hs="error" hidden>
+      <span class="pill">⚠️ Не получилось</span>
+      <h2 class="hs-h2c" id="hs-error-t" tabindex="-1" data-hs-focus></h2>
+      <p class="hs-lead" id="hs-error-d" role="alert"></p>
+      <div class="hs-cta__btns hs-err-btns">
+        <button type="button" class="hs-go" data-hs-lead>📩 Оставить заявку</button>
+        <button type="button" class="hs-ghost" id="hs-error-retry" hidden>Попробовать ещё раз</button>
+        <button type="button" class="hs-ghost" data-hs-reset>Проверить другой сайт</button>
+      </div>
+    </div>
+
+    <!-- демо выключено или недоступно -->
+    <div class="hs-panel hs-center" data-hs="off" hidden>
+      <span class="pill">🔎 Экспресс-анализ вашего сайта</span>
+      <h1 class="hs-h1" tabindex="-1" data-hs-focus>Живой разбор <span class="accent">скоро будет доступен</span></h1>
+      <p class="hs-lead">Пока вы можете записаться на демонстрацию: покажем, как Ключевик видит ваш сайт, нишу, конкурентов и спрос, на вашем проекте.</p>
+      <div class="hs-cta__btns hs-err-btns">
+        <button type="button" class="hs-go" data-open-modal>📅 Записаться на демо</button>
+        <a class="hs-ghost hs-link" href="#demo">Как проходит демонстрация</a>
+      </div>
+    </div>
+
+    <!-- заявка: показывается вместе с результатами и ошибками -->
+    <div class="hs-lead-box" id="hs-lead-box" hidden>
+      <form class="form hs-leadform" id="hs-lead-form" novalidate aria-labelledby="hs-lead-t">
+        <div>
+          <h3 class="hs-lead-t" id="hs-lead-t" tabindex="-1">Оставьте заявку — покажем на вашем проекте</h3>
+          <p class="hs-card__s">Свяжемся в рабочее время. Выбранная фраза и площадка передадутся вместе с заявкой.</p>
+        </div>
+        <label>Имя<input class="inp" type="text" name="name" autocomplete="name" required placeholder="Как к вам обращаться"></label>
+        <label>Телефон<input class="inp" type="tel" name="phone" autocomplete="tel" required placeholder="+7 ___ ___-__-__"></label>
+        <label>Сайт<input class="inp" type="text" name="site" autocomplete="url" placeholder="example.ru"></label>
+        <label class="hs-trap" aria-hidden="true">Не заполняйте это поле<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+        <label class="agree"><input type="checkbox" name="agree" required><span>Согласен на обработку персональных данных и с <a href="/privacy" target="_blank" rel="noopener">политикой конфиденциальности</a></span></label>
+        <p class="hs-err" id="hs-lead-err" role="alert" hidden></p>
+        <button class="btn btn--block" type="submit" id="hs-lead-go">Отправить заявку</button>
+      </form>
+      <div class="done" id="hs-lead-done" hidden>
+        <div class="done__emoji" aria-hidden="true">✅</div>
+        <h3 tabindex="-1" id="hs-lead-done-t">Заявка отправлена</h3>
+        <p>Свяжемся в рабочее время.</p>
       </div>
     </div>
 
