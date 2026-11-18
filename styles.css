@@ -773,6 +773,7 @@ button.hs-kw:hover .hs-kw__n{color:var(--blue-t)}
 .hs-comp__list li{padding:12px 14px;border-radius:14px;background:var(--soft);min-width:0}
 .hs-comp__list b{display:block;font-family:var(--fh);font-size:15px;overflow-wrap:anywhere}
 .hs-comp__list span{display:block;margin-top:3px;font-size:13px;line-height:1.45;color:var(--gray)}
+.hs-card[hidden]{display:none}
 .hs-card__l li{margin:2px 0}
 .hs-card__t{overflow-wrap:anywhere}
 .hs-niche__t{overflow-wrap:anywhere}
