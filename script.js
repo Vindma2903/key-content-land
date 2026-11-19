@@ -181,8 +181,8 @@ var DEMO_API = '/api/v1/public/demo';
   if (tabsEl) selectTab(0, false);
 
   /* ---------- калькулятор стоимости ---------- */
-  // 1 кредит = 85 ₽, минимальный тариф — 100 кредитов (8 500 ₽)
-  var CREDIT_PRICE = 85, MIN_CREDITS = 100, STEP = 5, MAX_POSTS = 100;
+  // Как в приложении (tariff.go): пакет «Старт» — 90 кредитов за 10 000 ₽, кредит сверх пакета — 150 ₽
+  var PACK_PRICE = 10000, MIN_CREDITS = 90, CREDIT_PRICE = 150, STEP = 5, MAX_POSTS = 100;
   var rows = Array.prototype.slice.call(document.querySelectorAll('.crow'));
 
   function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
@@ -199,15 +199,15 @@ var DEMO_API = '/api/v1/public/demo';
   function recalc() {
     var credits = 0, pubs = 0;
     rows.forEach(function (row) {
-      var n = getN(row), sum = n * Number(row.dataset.cr);
+      var n = getN(row), fee = n > 0 ? Number(row.dataset.fee || 0) : 0, sum = n * Number(row.dataset.cr) + fee;
       credits += sum; pubs += n;
       row.querySelector('[data-count]').textContent = n;
-      row.querySelector('[data-sub]').textContent = '= ' + sum + ' ' + plural(sum);
+      row.querySelector('[data-sub]').textContent = '= ' + sum + ' ' + plural(sum) + (fee ? ' с подключением' : '');
     });
     var total = Math.max(credits, MIN_CREDITS);
     document.getElementById('calc-pubs').textContent = pubs;
     document.getElementById('calc-credits').textContent = total;
-    document.getElementById('calc-price').textContent = fmt(total * CREDIT_PRICE);
+    document.getElementById('calc-price').textContent = fmt(PACK_PRICE + (total - MIN_CREDITS) * CREDIT_PRICE);
     document.getElementById('calc-below').hidden = credits >= MIN_CREDITS;
   }
 
@@ -217,9 +217,9 @@ var DEMO_API = '/api/v1/public/demo';
     row.querySelector('[data-minus]').addEventListener('click', function () { setN(row, getN(row) - STEP); });
     row.querySelector('[data-plus]').addEventListener('click', function () { setN(row, getN(row) + STEP); });
   });
-  // «Рекомендуем»: по 30 публикаций на каждую уже выбранную платформу
+  // «Рекомендуем»: значения из data-rec (по 30 на сайт и в Телеграм)
   if (rows.length) document.getElementById('calc-rec').addEventListener('click', function () {
-    rows.forEach(function (row) { row.querySelector('input[type=range]').value = getN(row) > 0 ? 30 : 0; });
+    rows.forEach(function (row) { row.querySelector('input[type=range]').value = row.dataset.rec; });
     recalc();
   });
   if (rows.length) document.getElementById('calc-reset').addEventListener('click', function () {
