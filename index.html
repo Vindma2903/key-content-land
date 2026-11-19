@@ -44,146 +44,62 @@
 
 <main id="main">
 
-<!-- HERO: живой экспресс-анализ сайта (состояния 1–6, ошибки и запасная карточка; логика — script.js, блок «Первый экран») -->
+<!-- HERO: ссылка на сайт → контакты → переход на платформу (логика — script.js, блок «Первый экран») -->
 <section class="hs" id="hs">
   <div class="wrap">
-    <!-- короткие сообщения для скринридера: ход анализа и смена состояния -->
     <div class="sr-only" id="hs-status" role="status" aria-live="polite"></div>
 
-    <!-- 1. Вставка ссылки -->
+    <!-- шаг 1: ссылка на сайт -->
     <div class="hs-panel hs-center" data-hs="input">
       <span class="pill">🔎 Экспресс-анализ вашего сайта</span>
       <h1 class="hs-h1" tabindex="-1" data-hs-focus>Вставьте ссылку на сайт — получите первую <span class="accent">карту спроса</span></h1>
       <p class="hs-lead">Покажем, как Ключевик видит ваш бизнес: нишу, аудиторию, конкурентов и спрос по ключевым фразам с реальной частотой из Яндекс Вордстата.</p>
       <form class="hs-form" id="hs-form" novalidate>
-        <input class="hs-inp" id="hs-site" name="site" type="text" inputmode="url" autocomplete="url" placeholder="https://ваш-сайт.ru" aria-label="Ссылка на сайт" aria-describedby="hs-err hs-consent" spellcheck="false" autocapitalize="off">
-        <button type="submit" class="hs-go" id="hs-go">Проанализировать →</button>
+        <input class="hs-inp" id="hs-site" name="site" type="text" inputmode="url" autocomplete="url" placeholder="https://ваш-сайт.ru" aria-label="Ссылка на сайт" aria-describedby="hs-site-err" spellcheck="false" autocapitalize="off">
+        <button type="submit" class="hs-go" id="hs-go">Продолжить →</button>
       </form>
-      <p class="hs-err" id="hs-err" role="alert" hidden></p>
-      <p class="hs-consent" id="hs-consent">Нажимая кнопку, вы соглашаетесь, что мы прочитаем открытые страницы сайта. <a href="/privacy" target="_blank" rel="noopener">Политика конфиденциальности</a></p>
+      <p class="hs-err" id="hs-site-err" role="alert" hidden></p>
       <div class="hs-steps3">
-        <span class="chip">1️⃣ Вставляете ссылку</span><b>→</b><span class="chip">2️⃣ Агенты читают сайт</span><b>→</b><span class="chip">3️⃣ Получаете первые результаты</span>
+        <span class="chip">1️⃣ Вставляете ссылку</span><b>→</b><span class="chip">2️⃣ Оставляете контакты</span><b>→</b><span class="chip">3️⃣ Открываете платформу</span>
       </div>
     </div>
 
-    <!-- 2. Идёт анализ -->
-    <div class="hs-panel hs-center" data-hs="run" hidden>
-      <span class="pill">⏳ Анализируем сайт</span>
-      <h2 class="hs-h2c" id="hs-domain-run" tabindex="-1" data-hs-focus></h2>
-      <p class="hs-lead">Команда AI-агентов собирает первые результаты. Обычно это занимает 1–2 минуты.</p>
-      <p class="hs-queue" id="hs-queue" hidden></p>
-      <div class="hs-bar" id="hs-bar-run" role="progressbar" aria-label="Ход анализа" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>
-      <ol class="hs-list" id="hs-run-steps"></ol>
-      <button type="button" class="hs-ghost hs-cancel" id="hs-cancel">Отменить</button>
-    </div>
-
-    <!-- 3. Первые результаты -->
-    <div class="hs-panel" data-hs="result" hidden>
-      <div class="hs-head">
-        <div><span class="pill">✅ Первые результаты</span><h2 class="hs-h2" tabindex="-1" data-hs-focus>Так Ключевик видит <span class="accent" id="hs-domain-res"></span></h2></div>
-      </div>
-      <div class="hs-cards4">
-        <div class="hs-card"><div class="hs-lab">🏷️ Бренд</div><div class="hs-card__t" id="hs-brand"></div><div class="hs-card__s" id="hs-brand-line"></div></div>
-        <div class="hs-card"><div class="hs-lab">🎯 Ниша</div><div class="hs-card__t" id="hs-niche"></div></div>
-        <div class="hs-card"><div class="hs-lab">👥 Аудитория</div><ul class="hs-card__l" id="hs-audience"></ul></div>
-        <div class="hs-card"><div class="hs-lab">🧰 Услуги</div><div class="hs-chips" id="hs-offers"></div></div>
-      </div>
-      <div class="hs-card hs-comp" id="hs-comp-card">
-        <div class="hs-lab">🏁 Конкуренты в выдаче Яндекса</div>
-        <ul class="hs-comp__list" id="hs-comp"></ul>
-      </div>
-      <div class="hs-card hs-tree">
-        <div class="hs-tree__head"><div><div class="hs-lab">📈 Дерево спроса</div><div class="hs-card__s">Ниша → направления → фразы. Показов в месяц — только измеренные в Яндекс Вордстате; если замер не получен, так и написано.</div></div><div class="hs-legend" id="hs-legend" hidden><span>✅ есть материал на сайте</span><span>💡 материала нет</span><span>по прочитанным страницам</span></div></div>
-        <div class="hs-tree__body">
-          <div class="hs-niche"><div class="hs-niche__k">НИША</div><div class="hs-niche__t" id="hs-niche-t"></div></div>
-          <div class="hs-dirs" id="hs-dirs"></div>
+    <!-- шаг 2: контакты -->
+    <div class="hs-panel hs-center" data-hs="contacts" hidden>
+      <span class="pill">Шаг 2 из 2 · бесплатно, без карты</span>
+      <h2 class="hs-h1 hs-h1--s" tabindex="-1" data-hs-focus>Куда прислать доступ к анализу вашего сайта?</h2>
+      <p class="hs-lead">Анализ готов запуститься. Оставьте контакты, и мы сразу откроем платформу: вы увидите, как подбираются ключи и темы.</p>
+      <form class="hs-card hs-sign" id="hs-sign" novalidate>
+        <div class="hs-site">
+          <span class="hs-site__ok" aria-hidden="true">✓</span>
+          <span class="hs-site__t"><small>Сайт для анализа</small><b id="hs-site-name"></b></span>
+          <button type="button" class="hs-site__edit" id="hs-edit">Изменить</button>
         </div>
-      </div>
-      <div class="hs-cta">
-        <div><div class="hs-cta__t">Хотите увидеть, что напишут агенты?</div><div class="hs-cta__s">Создайте бесплатную пробную статью по одной из найденных фраз — регистрация не нужна.</div></div>
-        <div class="hs-cta__btns"><button type="button" class="hs-white" data-hs-go="topic">✨ Создать пробную статью</button><button type="button" class="hs-outline" data-hs-reset>Проверить другой сайт</button></div>
-      </div>
-    </div>
-
-    <!-- 4. Выбор фразы и площадки -->
-    <div class="hs-panel" data-hs="topic" hidden>
-      <div class="hs-head">
-        <div><span class="pill">✨ Следующий шаг</span><h2 class="hs-h2" tabindex="-1" data-hs-focus>Создайте пробную статью <span class="accent">по найденной фразе</span></h2><p class="hs-lead hs-lead--l">Выберите фразу и площадку — AI-агенты подготовят текст.</p></div>
-        <button type="button" class="hs-ghost" data-hs-go="result">← К дереву спроса</button>
-      </div>
-      <div class="hs-two">
-        <div class="hs-card hs-topics"><div class="hs-lab" id="hs-topics-lab">Выберите фразу <span>· показов в месяц, Яндекс Вордстат</span></div><div id="hs-topics" class="hs-topics__list" role="radiogroup" aria-labelledby="hs-topics-lab"></div></div>
-        <div class="hs-side">
-          <div class="hs-card hs-fmt"><div class="hs-lab" id="hs-plat-lab">Площадка</div>
-            <div class="hs-plats" id="hs-plats" role="radiogroup" aria-labelledby="hs-plat-lab"></div>
-            <div class="hs-card__s" id="hs-plat-more" hidden></div>
-          </div>
-          <p class="hs-err" id="hs-topic-err" role="alert" hidden></p>
-          <div class="hs-blue"><div class="hs-blue__t">Пробная статья по выбранной фразе</div><button type="button" class="hs-white hs-white--w" id="hs-start">✨ Создать пробную статью</button><div class="hs-blue__s">🎁 Пробная статья бесплатно, регистрация не нужна</div></div>
+        <div class="hs-f">
+          <label for="hs-name">Имя</label>
+          <input class="hs-inp" id="hs-name" name="name" type="text" autocomplete="name" placeholder="Иван Петров" maxlength="100" aria-describedby="hs-name-err">
+          <p class="hs-err" id="hs-name-err" role="alert" hidden></p>
         </div>
-      </div>
-    </div>
-
-    <!-- 5. Создаём статью -->
-    <div class="hs-panel hs-center" data-hs="gen" hidden>
-      <span class="pill">⏳ Агенты работают</span>
-      <h2 class="hs-h2c" tabindex="-1" data-hs-focus>Создаём пробную статью</h2>
-      <p class="hs-lead">Фраза: «<span id="hs-sel-gen"></span>» · <span id="hs-sel-gen-p"></span></p>
-      <div class="hs-bar" id="hs-bar-gen" role="progressbar" aria-label="Ход создания статьи" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>
-      <ol class="hs-list" id="hs-gen-steps"></ol>
-    </div>
-
-    <!-- 6. Статья готова -->
-    <div class="hs-panel" data-hs="article" hidden>
-      <div class="hs-head"><div><span class="pill">✅ Пробная статья готова</span><h2 class="hs-h2" tabindex="-1" data-hs-focus>Вот что подготовили агенты</h2></div></div>
-      <div class="hs-two hs-two--art">
-        <div class="hs-card hs-art" id="hs-art">
-          <div class="hs-chips" id="hs-art-chips"></div>
-          <h3 class="hs-art__t" id="hs-art-title"></h3>
-          <div class="hs-art__body" id="hs-art-body"></div>
+        <div class="hs-f">
+          <label for="hs-phone">Телефон</label>
+          <input class="hs-inp" id="hs-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (900) 123-45-67" aria-describedby="hs-phone-hint hs-phone-err">
+          <p class="hs-hint" id="hs-phone-hint">Только для связи по вашему проекту, без рекламных рассылок</p>
+          <p class="hs-err" id="hs-phone-err" role="alert" hidden></p>
         </div>
-        <div class="hs-side">
-          <div class="hs-card"><div class="hs-lab">Что внутри</div><div class="hs-card__l">✅ Структура подобрана под фразу<br>✅ Заголовки и разделы расставлены<br>✅ Оформление под площадку</div></div>
-          <div class="hs-card hs-card--mist"><div class="hs-lab">🎁 Пробная статья</div><div class="hs-card__t hs-card__t--big">Использована 1 из 1</div></div>
-          <button type="button" class="hs-ghost" id="hs-copy">📋 Скопировать текст</button>
-          <button type="button" class="hs-ghost" data-hs-reset>Проверить другой сайт</button>
+        <div class="hs-f">
+          <label for="hs-email">Рабочая почта</label>
+          <input class="hs-inp" id="hs-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="ivan@ваш-сайт.ru" spellcheck="false" autocapitalize="off" aria-describedby="hs-email-err">
+          <p class="hs-err" id="hs-email-err" role="alert" hidden></p>
         </div>
-      </div>
-    </div>
-
-    <!-- боковое: сайт закрыт для чтения, нужна ниша -->
-    <div class="hs-panel hs-center" data-hs="niche" hidden>
-      <span class="pill">✍️ Нужна подсказка</span>
-      <h2 class="hs-h2c" tabindex="-1" data-hs-focus>Сайт закрыт от чтения</h2>
-      <p class="hs-lead">Роботам нельзя читать страницы этого сайта, поэтому напишите нишу своими словами — мы продолжим без чтения сайта.</p>
-      <form class="hs-form" id="hs-niche-form" novalidate>
-        <input class="hs-inp" id="hs-niche-inp" name="niche" type="text" maxlength="200" aria-label="Ниша своими словами" aria-describedby="hs-niche-err" placeholder="Например: клининг квартир в Казани">
-        <button type="submit" class="hs-go" id="hs-niche-go">Продолжить →</button>
+        <div class="hs-trap" aria-hidden="true"><label>Не заполняйте это поле<input type="text" id="hs-hp" name="hp" tabindex="-1" autocomplete="off"></label></div>
+        <div class="hs-f">
+          <label class="hs-agree"><input type="checkbox" id="hs-consent" name="consent" aria-describedby="hs-consent-err"><span>Согласен с <a href="/privacy" target="_blank" rel="noopener">условиями сервиса</a> и <a href="/privacy" target="_blank" rel="noopener">обработкой персональных данных</a></span></label>
+          <p class="hs-err" id="hs-consent-err" role="alert" hidden></p>
+        </div>
+        <p class="hs-err hs-err--form" id="hs-general-err" role="alert" hidden></p>
+        <button type="submit" class="hs-go hs-go--block" id="hs-submit">Открыть платформу →</button>
+        <p class="hs-hint hs-hint--c">Пароль не нужен: ссылку для входа пришлём на почту, а сейчас вы сразу попадёте на платформу. Пароль можно задать позже в настройках.</p>
       </form>
-      <p class="hs-err" id="hs-niche-err" role="alert" hidden></p>
-      <button type="button" class="hs-ghost" data-hs-reset>Проверить другой сайт</button>
-    </div>
-
-    <!-- боковое: ошибки и лимиты -->
-    <div class="hs-panel hs-center" data-hs="error" hidden>
-      <span class="pill">⚠️ Не получилось</span>
-      <h2 class="hs-h2c" id="hs-error-t" tabindex="-1" data-hs-focus></h2>
-      <p class="hs-lead" id="hs-error-d" role="alert"></p>
-      <div class="hs-cta__btns hs-err-btns">
-        <button type="button" class="hs-ghost" id="hs-error-retry" hidden>Попробовать ещё раз</button>
-        <button type="button" class="hs-ghost" data-hs-reset>Проверить другой сайт</button>
-      </div>
-    </div>
-
-    <!-- демо выключено или недоступно -->
-    <div class="hs-panel hs-center" data-hs="off" hidden>
-      <span class="pill">🔎 Экспресс-анализ вашего сайта</span>
-      <h1 class="hs-h1" tabindex="-1" data-hs-focus>Живой разбор <span class="accent">скоро будет доступен</span></h1>
-      <p class="hs-lead">Пока вы можете записаться на демонстрацию: покажем, как Ключевик видит ваш сайт, нишу, конкурентов и спрос, на вашем проекте.</p>
-      <div class="hs-cta__btns hs-err-btns">
-        <button type="button" class="hs-go" data-open-modal>📅 Записаться на демо</button>
-        <a class="hs-ghost hs-link" href="#demo">Как проходит демонстрация</a>
-      </div>
     </div>
 
   </div>
