@@ -276,7 +276,6 @@ img,svg{max-width:100%}
 .csum__price{margin-top:4px;font-family:var(--fh);font-weight:800;font-size:46px;line-height:1.05;letter-spacing:-.02em}
 .csum__warn{font-size:14px;line-height:1.45;background:rgba(255,255,255,.22);border-radius:12px;padding:10px 12px}
 .csum__warn[hidden]{display:none}
-.csum__note{font-size:14px;line-height:1.5;opacity:.95}
 .csum__gift{font-size:15px;font-weight:700;background:#fff;color:var(--ink);border-radius:12px;padding:12px 14px}
 .csum .btn{margin-top:4px}
 
