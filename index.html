@@ -482,36 +482,36 @@
 
     <div class="calc">
       <div class="calc__rows">
-        <div class="crow" data-k="site" data-cr="3" data-def="20">
+        <div class="crow" data-k="site" data-cr="3" data-def="30" data-rec="30">
           <div class="crow__top">
             <span class="crow__ico" aria-hidden="true">🌐</span><span class="crow__name">Сайт</span>
-            <span class="chip">3 кредита за пост</span><span class="crow__inc">входит в минимальный тариф</span>
+            <span class="chip">3 кредита за статью</span><span class="crow__inc">30 статей входят в минимальный тариф</span>
             <span class="crow__sub" data-sub></span>
           </div>
           <div class="crow__ctl">
-            <button type="button" class="cbtn" data-minus aria-label="Сайт: уменьшить количество публикаций">−</button>
-            <input type="range" min="0" max="100" step="1" value="20" aria-label="Сайт: количество публикаций">
-            <button type="button" class="cbtn" data-plus aria-label="Сайт: увеличить количество публикаций">+</button>
-            <span class="crow__count"><b data-count>20</b> <small>пост.</small></span>
+            <button type="button" class="cbtn" data-minus aria-label="Сайт: уменьшить количество статей">−</button>
+            <input type="range" min="0" max="100" step="1" value="30" aria-label="Сайт: количество статей">
+            <button type="button" class="cbtn" data-plus aria-label="Сайт: увеличить количество статей">+</button>
+            <span class="crow__count"><b data-count>30</b> <small>ст.</small></span>
           </div>
         </div>
-        <div class="crow" data-k="tg" data-cr="2" data-def="20">
+        <div class="crow" data-k="tg" data-cr="2" data-def="0" data-rec="30">
           <div class="crow__top">
             <span class="crow__ico" aria-hidden="true">✈️</span><span class="crow__name">Телеграм</span>
-            <span class="chip">2 кредита за пост</span><span class="crow__inc">входит в минимальный тариф</span>
+            <span class="chip">2 кредита за пост</span><span class="crow__inc">подключение канала бесплатно</span>
             <span class="crow__sub" data-sub></span>
           </div>
           <div class="crow__ctl">
             <button type="button" class="cbtn" data-minus aria-label="Телеграм: уменьшить количество публикаций">−</button>
-            <input type="range" min="0" max="100" step="1" value="20" aria-label="Телеграм: количество публикаций">
+            <input type="range" min="0" max="100" step="1" value="0" aria-label="Телеграм: количество публикаций">
             <button type="button" class="cbtn" data-plus aria-label="Телеграм: увеличить количество публикаций">+</button>
-            <span class="crow__count"><b data-count>20</b> <small>пост.</small></span>
+            <span class="crow__count"><b data-count>0</b> <small>пост.</small></span>
           </div>
         </div>
-        <div class="crow" data-k="tenchat" data-cr="2" data-def="0">
+        <div class="crow" data-k="tenchat" data-cr="2" data-fee="30" data-def="0" data-rec="0">
           <div class="crow__top">
             <span class="crow__ico" aria-hidden="true">💬</span><span class="crow__name">ТенЧат</span>
-            <span class="chip">2 кредита за пост</span>
+            <span class="chip">2 кредита за пост</span><span class="crow__inc">подключение — 30 кредитов в месяц</span>
             <span class="crow__sub" data-sub></span>
           </div>
           <div class="crow__ctl">
@@ -521,10 +521,10 @@
             <span class="crow__count"><b data-count>0</b> <small>пост.</small></span>
           </div>
         </div>
-        <div class="crow" data-k="dzen" data-cr="3" data-def="0">
+        <div class="crow" data-k="dzen" data-cr="3" data-fee="30" data-def="0" data-rec="0">
           <div class="crow__top">
             <span class="crow__ico" aria-hidden="true">📰</span><span class="crow__name">Дзен</span>
-            <span class="chip">3 кредита за пост</span>
+            <span class="chip">3 кредита за пост</span><span class="crow__inc">подключение — 30 кредитов в месяц</span>
             <span class="crow__sub" data-sub></span>
           </div>
           <div class="crow__ctl">
@@ -535,22 +535,22 @@
           </div>
         </div>
         <div class="calc__presets">
-          <button type="button" class="ghost" id="calc-rec">✨ Рекомендуем: по 30 в месяц</button>
+          <button type="button" class="ghost" id="calc-rec">✨ Рекомендуем: по 30 на сайт и в Телеграм</button>
           <button type="button" class="ghost" id="calc-reset">↺ Минимальный тариф</button>
         </div>
       </div>
 
       <aside class="csum" aria-live="polite">
         <div class="csum__title">Ваш расчёт</div>
-        <div class="csum__line"><span>Публикаций всего</span><b id="calc-pubs">40</b></div>
-        <div class="csum__line"><span>Кредитов на старте</span><b id="calc-credits">100</b></div>
+        <div class="csum__line"><span>Публикаций всего</span><b id="calc-pubs">30</b></div>
+        <div class="csum__line"><span>Кредитов на старте</span><b id="calc-credits">90</b></div>
         <div class="csum__hr"></div>
         <div>
           <div class="csum__label">Стоимость</div>
-          <div class="csum__price"><span id="calc-price">8&nbsp;500</span>&nbsp;₽</div>
+          <div class="csum__price"><span id="calc-price">10&nbsp;000</span>&nbsp;₽</div>
         </div>
-        <div class="csum__warn" id="calc-below" hidden>Выбрано меньше минимального тарифа — стоимость 8&nbsp;500&nbsp;₽ (100 кредитов).</div>
-        <p class="csum__note">Минимальный тариф — сайт и Телеграм по 20 публикаций, 100 кредитов на старте.</p>
+        <div class="csum__warn" id="calc-below" hidden>Выбрано меньше минимального тарифа — стоимость 10&nbsp;000&nbsp;₽ (90 кредитов).</div>
+        <p class="csum__note">Минимальный тариф — 10&nbsp;000&nbsp;₽: 90 кредитов, 30 статей для сайта и 0 публикаций в Телеграме. Каждый кредит сверх пакета — 150&nbsp;₽. Подключение Телеграма и сайта бесплатно.</p>
         <div class="csum__gift">🎁 +3 тестовые статьи бесплатно</div>
         <button class="btn btn--white" type="button" data-open-modal><span class="hide-phone">📅 Записаться на демонстрацию</span><span class="show-phone">📅 Записаться на демо</span></button>      </aside>
     </div>
@@ -583,7 +583,7 @@
       </div>
       <div class="faq-item">
         <h3><button class="faq" type="button" aria-expanded="false" aria-controls="fa5"><span>Сколько это стоит?</span><span class="faq__i" aria-hidden="true">+</span></button></h3>
-        <p class="faq__a" id="fa5" hidden>Стоимость зависит от количества публикаций и платформ, на которых их нужно разместить. Всё настраивается индивидуально. Рекомендуем выпускать для каждой платформы не менее 30 публикаций в месяц.</p>
+        <p class="faq__a" id="fa5" hidden>Стоимость зависит от количества публикаций и платформ, на которых их нужно разместить. Всё настраивается индивидуально. Минимальный тариф — 10 000 ₽: 30 статей для сайта; подключение Телеграма бесплатно. Рекомендуем выпускать для каждой платформы не менее 30 публикаций в месяц.</p>
       </div>
     </div>
   </div>
