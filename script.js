@@ -1,9 +1,3 @@
-/* ============ Настройки страницы ============ */
-// Номер счётчика Яндекс Метрики для целей демо. null — цели не отправляются. Счётчик подключает владелец сайта.
-var METRIKA_ID = null;
-// Адрес публичного API демо платформы (тот же домен, куки и CORS не нужны).
-var DEMO_API = '/api/v1/public/demo';
-
 (function () {
   'use strict';
 
@@ -246,877 +240,202 @@ var DEMO_API = '/api/v1/public/demo';
   });
 })();
 
-/* ============ Первый экран: живой экспресс-анализ сайта ============
-   Работает с публичным API демо платформы (/api/v1/public/demo/*): config, analyses, niche, article, delete.
-   Конечный автомат: input → run → result → topic → gen → article, боковые niche / error / off.
-   Один источник правды — объект state; панель выбирается по state.screen. Тексты с сервера выводятся только через textContent. */
+/* ============ Первый экран: ссылка на сайт → контакты → переход на платформу ============
+   Шаг 1 — адрес сайта, шаг 2 — имя, телефон, почта и согласие. Отправка: POST /api/v1/public/signup (тот же домен);
+   при успехе человек уходит на платформу по адресу из ответа. Тексты с сервера на страницу не выводятся. */
 (function () {
   'use strict';
   var root = document.getElementById('hs');
   if (!root) return;
 
-  var API = DEMO_API;
-  var STORE_KEY = 'kw_demo';
-  var WAIT_LIMIT_MS = 4 * 60 * 1000;      // общий предел ожидания анализа и статьи
-  var FREQ_WAIT_MS = 100 * 1000;          // сервер сам переводит «считаем» в «уточняется» через 90 секунд после результатов
-  var DEFAULT_PLATFORMS = ['telegram', 'blog'];
-  var PLATFORM_LABELS = {
-    telegram: ['✈️', 'Телеграм', 'пост для канала'],
-    blog: ['🌐', 'Блог', 'статья для сайта'],
-    dzen: ['📰', 'Дзен', 'статья'],
-    tenchat: ['💬', 'ТенЧат', 'публикация']
+  var SIGNUP_API = '/api/v1/public/signup';
+  var CONTACT_MAIL = 'info@pro-technologii.ru';
+  var UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+  var FIELD_IDS = ['hs-site', 'hs-name', 'hs-phone', 'hs-email', 'hs-consent', 'hs-general'];
+  var URL_RE = /^(?:https?:\/\/)?(?:[\p{L}\p{N}](?:[\p{L}\p{N}-]*[\p{L}\p{N}])?\.)+[\p{L}\p{N}-]{2,}(?::\d{2,5})?(?:[\/?#]\S*)?$/u;
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  var FIELD_ERR = {
+    invalid_phone: ['hs-phone', 'Проверьте номер телефона: после +7 нужно 10 цифр.'],
+    invalid_email: ['hs-email', 'Проверьте адрес почты, например ivan@ваш-сайт.ru.'],
+    consent_required: ['hs-consent', 'Нужно согласие, чтобы продолжить.']
   };
-  var STEP_ICONS = { read: '🌐', profile: '🏷️', competitors: '🏁', phrases: '🧩', measure: '📈' };
-  var GEN_STEPS = [['🧩', 'Подбираем структуру'], ['✍️', 'Пишем текст'], ['🎨', 'Оформляем под площадку']];
-  var FOCUS_OFF_SCREENS = { input: 1, off: 1 };   // на этих экранах страница полная, на остальных — только демо
 
-  var state = {
-    screen: 'input', cfg: null, id: '', token: '', domain: '', view: null, result: null,
-    chosen: { phrase: '', platform: '' }, article: null, idem: { url: '', key: '' }, busy: false
-  };
   var panels = {};
   Array.prototype.forEach.call(root.querySelectorAll('[data-hs]'), function (p) { panels[p.getAttribute('data-hs')] = p; });
-  var poll = null, inflight = [], copyTimer = null;
+  var state = { url: '', busy: false };
+  var phoneDigits = 0;
 
-  /* ---------- мелочи ---------- */
   function $(id) { return document.getElementById(id); }
-  function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
-  function el(tag, cls, text) {
-    var n = document.createElement(tag);
-    if (cls) n.className = cls;
-    if (text != null) n.textContent = text;
-    return n;
-  }
-  function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); return n; }
-  function say(msg) { var s = $('hs-status'); if (s) s.textContent = msg; }
-  function uuid() {
-    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
-    return 'k' + Date.now().toString(36) + Math.random().toString(36).slice(2, 12);
-  }
-  function platformLabel(p) {
-    var l = PLATFORM_LABELS[p];
-    return l ? l[0] + ' ' + l[1] : p;
-  }
-  function plainPlatform(p) { var l = PLATFORM_LABELS[p]; return l ? l[1] : p; }
-  function wordsWord(n) {
-    var m10 = n % 10, m100 = n % 100;
-    if (m10 === 1 && m100 !== 11) return 'слово';
-    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'слова';
-    return 'слов';
-  }
-
-  /* ---------- метрика: только цели и код ошибки, без адреса сайта и введённого текста ---------- */
-  function goal(name, params) {
-    try {
-      if (METRIKA_ID && typeof window.ym === 'function') {
-        if (params) window.ym(METRIKA_ID, 'params', params);
-        window.ym(METRIKA_ID, 'reachGoal', name);
-      }
-    } catch (e) { /* счётчик не должен ломать страницу */ }
-  }
-
-  /* ---------- хранение сессии: токен только в памяти и sessionStorage, в адрес и журналы не попадает ---------- */
-  function saveSession() {
-    try {
-      sessionStorage.setItem(STORE_KEY, JSON.stringify({
-        id: state.id, token: state.token, domain: state.domain, phrase: state.chosen.phrase, platform: state.chosen.platform
-      }));
-    } catch (e) { /* без хранилища страница работает так же */ }
-  }
-  function loadSession() {
-    try {
-      var d = JSON.parse(sessionStorage.getItem(STORE_KEY) || 'null');
-      if (d && typeof d.id === 'string' && typeof d.token === 'string' && d.id && d.token) return d;
-    } catch (e) { /* пусто */ }
-    return null;
-  }
-  function dropSession() { try { sessionStorage.removeItem(STORE_KEY); } catch (e) { /* пусто */ } }
-
-  /* ---------- запросы ---------- */
-  function abortAll() { inflight.forEach(function (c) { c._user = true; c.abort(); }); inflight = []; }
-
-  // call возвращает {status, body, retryAfter, etag}; сетевой сбой и таймаут — отказ с {net:true}, отмена — {user:true}
-  function call(method, path, o) {
-    o = o || {};
-    var ctl = new AbortController();
-    inflight.push(ctl);
-    var timer = setTimeout(function () { ctl.abort(); }, 20000);
-    var headers = {};
-    if (o.token) headers['X-Demo-Token'] = o.token;
-    if (o.etag) headers['If-None-Match'] = o.etag;
-    if (o.idem) headers['Idempotency-Key'] = o.idem;
-    var init = { method: method, headers: headers, signal: ctl.signal, credentials: 'omit' };
-    if (o.body !== undefined) { headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(o.body); }
-    function done() { clearTimeout(timer); var i = inflight.indexOf(ctl); if (i >= 0) inflight.splice(i, 1); }
-    return fetch(API + path, init).then(function (r) {
-      var ra = parseInt(r.headers.get('Retry-After') || '', 10);
-      var res = { status: r.status, retryAfter: isNaN(ra) ? 0 : ra, etag: r.headers.get('ETag') || '', body: null };
-      if (r.status === 304 || r.status === 204) { done(); return res; }
-      return r.text().then(function (txt) {
-        done();
-        try { res.body = txt ? JSON.parse(txt) : null; } catch (e) { res.body = null; }
-        return res;
-      });
-    }, function () {
-      var user = !!ctl._user;
-      done();
-      throw { net: true, user: user };
-    });
-  }
-  function codeOf(r) { return r && r.body && r.body.code ? r.body.code : ''; }
-
-  /* ---------- показ панелей ---------- */
-  function show(name, opts) {
-    opts = opts || {};
-    state.screen = name;
+  function show(name) {
     Object.keys(panels).forEach(function (k) { panels[k].hidden = k !== name; });
-    // режим фокуса: пока идёт демо, остальные блоки страницы скрыты (стили — .demo-focus в styles.css)
-    var entering = !FOCUS_OFF_SCREENS[name] && !document.documentElement.classList.contains('demo-focus');
-    document.documentElement.classList.toggle('demo-focus', !FOCUS_OFF_SCREENS[name]);
-    if (opts.quiet) return;
-    if (entering) window.scrollTo(0, 0);
-    var top = root.getBoundingClientRect().top;
-    if (top < 0) window.scrollTo({ top: window.pageYOffset + top - 84, behavior: 'smooth' });
     var h = panels[name].querySelector('[data-hs-focus]');
-    if (h) { try { h.focus({ preventScroll: true }); } catch (e) { h.focus(); } }
+    if (h) h.focus({ preventScroll: true });
   }
 
-  /* ---------- ошибки: человеческие тексты и что делать ---------- */
-  var ERR = {
-    net: ['Связь прервана', 'Не удаётся связаться с сервером. Проверьте интернет и попробуйте ещё раз.'],
-    timeout_run: ['Анализ идёт дольше обычного', 'Можно подождать ещё или проверить другой сайт.'],
-    timeout_gen: ['Статья готовится дольше обычного', 'Выбранные фраза и площадка сохранены. Можно подождать ещё.'],
-    analysis_failed: ['Не удалось завершить анализ', 'Попробуйте ещё раз позже или проверьте другой адрес.'],
-    forbidden: ['Этот сайт нельзя анализировать', 'Введите адрес вашего собственного сайта.'],
-    limit: ['На сегодня демо закончилось', 'С вашего адреса слишком много попыток. Попробуйте позже.'],
-    capacity: ['Демо сейчас занято', 'Дневной лимит демо исчерпан или очередь заполнена. Попробуйте позже.'],
-    captcha: ['Проверка не пройдена', 'Обновите страницу и попробуйте ещё раз.'],
-    expired: ['Демо устарело', 'Срок анализа истёк или он уже удалён. Запустите проверку заново.'],
-    article_exists: ['Пробная статья уже создавалась', 'На один анализ — одна пробная статья. Можно проверить другой сайт.'],
-    generic: ['Что-то пошло не так', 'Попробуйте ещё раз позже.']
-  };
-  var RETRY = { net: 'Попробовать ещё раз', timeout_run: 'Подождать ещё', timeout_gen: 'Подождать ещё', expired: 'Запустить заново' };
-
-  function kindFromProblem(r) {
-    var c = codeOf(r);
-    if (c === 'demo_rate_limited' || r.status === 429) return 'limit';
-    if (c === 'demo_capacity') return 'capacity';
-    if (c === 'demo_captcha_failed') return 'captcha';
-    if (c === 'demo_not_found' || c === 'demo_expired' || r.status === 404 || r.status === 410) return 'expired';
-    if (c === 'demo_article_exists') return 'article_exists';
-    if (c === 'demo_url_forbidden') return 'forbidden';
-    if (c === 'demo_analysis_failed') return 'analysis_failed';
-    return 'generic';
+  /* ошибка у поля: текст в абзаце под ним, у поля aria-invalid; сообщение — строка или узел (со ссылкой) */
+  function setError(id, msg) {
+    var field = $(id), box = $(id + '-err');
+    if (field) field.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    box.textContent = '';
+    if (msg) box.appendChild(typeof msg === 'string' ? document.createTextNode(msg) : msg);
+    box.hidden = !msg;
+  }
+  function link(href, text) {
+    var a = document.createElement('a');
+    a.href = href; a.textContent = text;
+    return a;
+  }
+  function textWithLink(before, href, linkText, after) {
+    var f = document.createDocumentFragment();
+    f.appendChild(document.createTextNode(before));
+    f.appendChild(link(href, linkText));
+    if (after) f.appendChild(document.createTextNode(after));
+    return f;
   }
 
-  var retryAction = null;
-  function showError(kind, extra) {
-    stopPoll();
-    var m = ERR[kind] || ERR.generic;
-    var d = m[1];
-    if (kind === 'limit' && extra && extra.retryAfter > 0) {
-      var mins = Math.ceil(extra.retryAfter / 60);
-      d += ' Повторить можно примерно через ' + (mins >= 60 ? Math.ceil(mins / 60) + ' ч.' : mins + ' мин.');
-    }
-    $('hs-error-t').textContent = m[0];
-    $('hs-error-d').textContent = d;
-    var btn = $('hs-error-retry');
-    retryAction = (extra && extra.retry) || null;
-    btn.hidden = !retryAction;
-    if (retryAction) btn.textContent = RETRY[kind] || 'Попробовать ещё раз';
-    if (kind === 'expired') dropSession();
-    goal('demo_error', { demo_error: kind });
-    show('error');
-    say(m[0] + '. ' + d);
-  }
-
-  /* ---------- состояние 1: ввод ссылки ---------- */
-  // мягкая проверка «похоже на адрес»; настоящая — на сервере
+  /* ---------- шаг 1: адрес сайта ---------- */
   function normalizeUrl(raw) {
-    var v = String(raw || '').trim();
-    if (!v || /\s/.test(v) || v.indexOf('@') >= 0) return null;
-    var withScheme = /^[a-z][a-z0-9+.-]*:\/\//i.test(v) ? v : 'https://' + v;
-    var u;
-    try { u = new URL(withScheme); } catch (e) { return null; }
-    if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
-    var host = u.hostname.replace(/\.$/, '');
-    if (host.indexOf('.') < 1 || host.length > 253) return null;
-    return { url: withScheme, domain: host.replace(/^www\./i, '') };
+    var v = (raw || '').trim();
+    if (!URL_RE.test(v)) return '';
+    return /^https?:\/\//i.test(v) ? v : 'https://' + v;
   }
 
-  function inputError(msg) {
-    var e = $('hs-err');
-    e.textContent = msg || '';
-    e.hidden = !msg;
-    $('hs-site').setAttribute('aria-invalid', msg ? 'true' : 'false');
+  function submitUrl(ev) {
+    ev.preventDefault();
+    var site = $('hs-site');
+    var url = normalizeUrl(site.value);
+    if (!url) { setError('hs-site', 'Введите адрес сайта, например example.ru'); site.focus(); return; }
+    setError('hs-site', '');
+    state.url = url;
+    $('hs-site-name').textContent = url.replace(/^https?:\/\//i, '').replace(/\/$/, '');
+    show('contacts');
   }
 
-  function setBusy(btn, on, busyText) {
+  /* ---------- телефон: маска +7 (900) 123-45-67, наружу уходит +7 и 10 цифр ---------- */
+  function phoneMask(digits) {
+    if (!digits) return '';
+    var s = '+7 (' + digits.slice(0, 3);
+    if (digits.length > 3) s += ') ' + digits.slice(3, 6);
+    if (digits.length > 6) s += '-' + digits.slice(6, 8);
+    if (digits.length > 8) s += '-' + digits.slice(8, 10);
+    return s;
+  }
+  function onPhoneInput(ev) {
+    var inp = ev.target;
+    var d = inp.value.replace(/\D/g, '');
+    if (d.charAt(0) === '7' || d.charAt(0) === '8') d = d.slice(1);
+    d = d.slice(0, 10);
+    // стирание символа маски (скобка, пробел, дефис) не меняет цифры: тогда убираем последнюю цифру
+    if (ev.inputType === 'deleteContentBackward' && d.length === phoneDigits && d.length) d = d.slice(0, -1);
+    phoneDigits = d.length;
+    inp.value = phoneMask(d);
+    setError('hs-phone', '');
+  }
+  function phoneValue() { return $('hs-phone').value.replace(/\D/g, '').slice(1); }
+
+  /* ---------- шаг 2: отправка ---------- */
+  function utmFromQuery() {
+    var out = {}, q;
+    try { q = new URLSearchParams(location.search); } catch (e) { return out; }
+    UTM_KEYS.forEach(function (k) { var v = q.get(k); if (v) out[k] = v.slice(0, 200); });
+    return out;
+  }
+
+  function setBusy(on) {
     state.busy = on;
-    btn.disabled = on;
-    if (on) { btn._t = btn.textContent; if (busyText) btn.textContent = busyText; }
-    else if (btn._t) { btn.textContent = btn._t; }
+    var b = $('hs-submit');
+    b.disabled = on;
+    b.textContent = on ? 'Открываем платформу…' : 'Открыть платформу →';
+    $('hs-status').textContent = on ? 'Открываем платформу' : '';
   }
 
-  function startAnalysis(ev) {
+  function validate() {
+    var bad = null;
+    function flag(id, msg) { setError(id, msg); if (!bad) bad = $(id); }
+    if (!$('hs-name').value.trim()) flag('hs-name', 'Укажите имя.');
+    if (phoneValue().length !== 10) flag('hs-phone', 'Введите номер полностью: после +7 нужно 10 цифр.');
+    if (!EMAIL_RE.test($('hs-email').value.trim())) flag('hs-email', 'Проверьте адрес почты, например ivan@ваш-сайт.ru.');
+    if (!$('hs-consent').checked) flag('hs-consent', 'Нужно согласие, чтобы продолжить.');
+    if (bad) { bad.focus(); return false; }
+    return true;
+  }
+
+  /* ответ сервера → понятное сообщение у нужного поля; введённое остаётся в форме */
+  function showProblem(status, code) {
+    if (code === 'invalid_url' || code === 'site_unreachable') {
+      show('input');
+      setError('hs-site', code === 'invalid_url'
+        ? 'Не похоже на адрес сайта. Введите адрес вида example.ru'
+        : 'Не получилось открыть этот сайт. Проверьте адрес и попробуйте ещё раз.');
+      $('hs-site').focus();
+    } else if (FIELD_ERR[code]) {
+      setError(FIELD_ERR[code][0], FIELD_ERR[code][1]);
+      $(FIELD_ERR[code][0]).focus();
+    } else if (code === 'email_taken') {
+      setError('hs-email', textWithLink('Такая почта уже зарегистрирована. ', '/login', 'Войти'));
+      $('hs-email').focus();
+    } else if (code === 'rate_limited' || status === 429) {
+      setError('hs-general', 'Слишком много попыток, попробуйте позже.');
+    } else {
+      generalError();
+    }
+  }
+  function generalError() {
+    setError('hs-general', textWithLink('Не получилось, попробуйте позже или ', 'mailto:' + CONTACT_MAIL, 'напишите нам', '.'));
+  }
+
+  function submitSignup(ev) {
     ev.preventDefault();
     if (state.busy) return;
-    var n = normalizeUrl($('hs-site').value);
-    if (!n) { inputError('Введите адрес сайта, например example.ru'); $('hs-site').focus(); return; }
-    inputError('');
-    // один ключ на одну и ту же отправку: двойной клик и повтор после сбоя сети не создают вторую сессию
-    if (state.idem.url !== n.url) state.idem = { url: n.url, key: uuid() };
-    var btn = $('hs-go');
-    setBusy(btn, true, 'Отправляем…');
-    goal('demo_url_submitted');
-    call('POST', '/analyses', { body: { url: n.url, captchaToken: '' }, idem: state.idem.key }).then(function (r) {
-      setBusy(btn, false);
-      if (r.status === 202 && r.body && r.body.id && r.body.token) {
-        state.id = r.body.id; state.token = r.body.token; state.domain = r.body.domain || n.domain;
-        state.view = null; state.result = null; state.article = null; state.chosen = { phrase: '', platform: '' };
-        state.idem = { url: '', key: '' };
-        saveSession();
-        enterRun();
-        return;
-      }
-      var c = codeOf(r);
-      if (c === 'demo_url_invalid') { inputError('Не удалось распознать адрес сайта. Введите адрес вида example.ru.'); $('hs-site').focus(); goal('demo_error', { demo_error: c }); return; }
-      if (c === 'demo_url_forbidden') { inputError('Этот сайт нельзя анализировать. Введите адрес вашего собственного сайта.'); $('hs-site').focus(); goal('demo_error', { demo_error: c }); return; }
-      if (c === 'demo_bad_request' || r.status === 400) { inputError('Не удалось отправить адрес. Проверьте его и попробуйте ещё раз.'); return; }
-      if (c === 'demo_disabled') { show('off'); return; }
-      showError(kindFromProblem(r), { retryAfter: r.retryAfter });
-    }, function (e) {
-      setBusy(btn, false);
-      if (e && e.user) return;
-      inputError('Не удалось связаться с сервером. Проверьте интернет и нажмите кнопку ещё раз.');
-    });
-  }
-
-  /* ---------- опрос ---------- */
-  function stopPoll() { if (poll) { clearTimeout(poll.timer); poll.dead = true; poll = null; } abortAll(); }
-  function startPoll(kind, immediate) {
-    stopPoll();
-    poll = { kind: kind, started: Date.now(), n: 0, fails: 0, etag: '', timer: 0, dead: false };
-    schedule(poll, immediate ? 0 : 1100);
-  }
-  // интервал: не чаще 1,1 с (сервер отвечает 429 чаще раза в секунду), плавно растёт до 3 с; подсказка сервера не короче; скрытая вкладка — 10 с
-  function nextDelay(p) {
-    if (document.hidden) return 10000;
-    var d = Math.min(3000, 1100 + p.n * 250);
-    var hint = state.view && state.view.poll && state.view.poll.intervalMs;
-    if (hint && hint > d) d = Math.min(3000, hint);
-    return d;
-  }
-  function schedule(p, delay) { p.timer = setTimeout(function () { tick(p); }, delay); }
-
-  function tick(p) {
-    if (p.dead) return;
-    if (p.kind !== 'freq' && Date.now() - p.started > WAIT_LIMIT_MS) {
-      showError(p.kind === 'gen' ? 'timeout_gen' : 'timeout_run', { retry: function () { startPoll(p.kind, true); resumeScreen(p.kind); } });
-      return;
-    }
-    if (p.kind === 'freq' && Date.now() - p.started > FREQ_WAIT_MS) { stopPoll(); return; }
-    call('GET', '/analyses/' + encodeURIComponent(state.id), { token: state.token, etag: p.etag }).then(function (r) {
-      if (p.dead) return;
-      p.n += 1;
-      if (r.status === 304) { p.fails = 0; schedule(p, nextDelay(p)); return; }
-      if (r.status === 429) { schedule(p, Math.max(2000, (r.retryAfter || 2) * 1000)); return; }
-      if (r.status === 200 && r.body) { p.fails = 0; p.etag = r.etag; applyView(r.body, p); return; }
-      if (r.status >= 500 && codeOf(r) !== 'demo_disabled') { failNet(p); return; }
-      if (codeOf(r) === 'demo_disabled') { stopPoll(); show('off'); return; }
-      stopPoll();
-      showError(kindFromProblem(r));
-    }, function (e) {
-      if (p.dead || (e && e.user)) return;
-      failNet(p);
-    });
-  }
-
-  // три сетевые ошибки подряд с нарастающей паузой, затем понятное сообщение с повтором
-  function failNet(p) {
-    p.fails += 1;
-    if (p.fails >= 3) {
-      var kind = p.kind;
-      showError('net', { retry: function () { startPoll(kind, true); resumeScreen(kind); } });
-      return;
-    }
-    schedule(p, Math.min(8000, 1000 * Math.pow(2, p.fails)));
-  }
-  function resumeScreen(kind) {
-    if (kind === 'gen') show('gen', { quiet: false });
-    else if (kind === 'run') show('run');
-    else if (kind === 'freq') show(state.result ? 'result' : 'run');
-  }
-
-  document.addEventListener('visibilitychange', function () {
-    if (!document.hidden && poll && !poll.dead) { clearTimeout(poll.timer); schedule(poll, 300); }
-  });
-
-  /* ---------- разбор ответа сервера ---------- */
-  function hasPending(res) {
-    return !!res && res.phrases.some(function (p) { return p.frequencyState === 'pending'; });
-  }
-
-  function applyView(v, p) {
-    state.view = v;
-    if (v.domain) state.domain = v.domain;
-    var st = v.status;
-    if (v.result) state.result = v.result;
-
-    if (st === 'needs_niche') { stopPoll(); show('niche'); say('Сайт не удалось прочитать. Напишите нишу своими словами.'); return; }
-    if (st === 'blocked') { showError('forbidden'); return; }
-    if (st === 'failed') {
-      if (v.error && v.error.code === 'demo_article_failed' && state.result) { articleFailed(); return; }
-      showError('analysis_failed');
-      return;
-    }
-    if (st === 'ready') {
-      if (state.screen !== 'result' && state.screen !== 'topic') {
-        renderResult(state.result);
-        show('result');
-        goal('demo_results_shown');
-        say('Первые результаты готовы.');
-      } else {
-        refreshFreqs();
-      }
-      if (hasPending(state.result)) {
-        if (p.kind !== 'freq') { startPoll('freq'); return; }
-        schedule(p, nextDelay(p));
-      } else { stopPoll(); }
-      return;
-    }
-    if (st === 'article_queued' || st === 'article_writing') {
-      if (state.result && !$('hs-dirs').firstChild) renderResult(state.result);
-      renderGen(st);
-      if (state.screen !== 'gen') {
-        if (v.article) state.chosen = { phrase: v.article.phrase, platform: v.article.platform };
-        $('hs-sel-gen').textContent = state.chosen.phrase;
-        $('hs-sel-gen-p').textContent = plainPlatform(state.chosen.platform);
-        show('gen');
-      }
-      schedule(p, nextDelay(p));
-      return;
-    }
-    if (st === 'article_ready') {
-      stopPoll();
-      if (state.result && !$('hs-dirs').firstChild) renderResult(state.result);
-      state.article = v.article;
-      renderArticle(v.article);
-      show('article');
-      goal('demo_article_ready');
-      say('Пробная статья готова.');
-      return;
-    }
-    // идёт анализ: queued, reading, profiling, competitors, phrases, measuring
-    if (state.screen !== 'run') { $('hs-domain-run').textContent = state.domain; show('run'); }
-    renderRun(v);
-    schedule(p, nextDelay(p));
-  }
-
-  function articleFailed() {
-    stopPoll();
-    renderTopics();
-    var e = $('hs-topic-err');
-    e.textContent = 'Не получилось написать статью. Попробуйте другую фразу.';
-    e.hidden = false;
-    $('hs-start').disabled = false;
-    show('topic');
-    goal('demo_error', { demo_error: 'demo_article_failed' });
-    say('Не получилось написать статью.');
-  }
-
-  /* ---------- состояние 2: идёт анализ ---------- */
-  function setBar(id, pct) {
-    var bar = $(id);
-    var cur = parseInt(bar.getAttribute('aria-valuenow'), 10) || 0;
-    pct = Math.max(cur, Math.min(100, Math.round(pct) || 0)); // полоса только растёт
-    bar.setAttribute('aria-valuenow', String(pct));
-    bar.firstElementChild.style.width = pct + '%';
-  }
-
-  function renderSteps(list, defs) {
-    clear(list);
-    defs.forEach(function (d, i) {
-      var cls = 'hs-step' + (d.state === 'done' ? ' is-on is-done' : d.state === 'doing' ? ' is-on' : d.state === 'skipped' ? ' is-skip' : '');
-      var li = el('li', cls);
-      if (d.state === 'doing') li.setAttribute('aria-current', 'step');
-      var mark = d.state === 'done' ? '✓' : d.state === 'doing' ? '…' : d.state === 'skipped' ? '–' : String(i + 1);
-      li.appendChild(el('span', 'hs-step__dot', mark));
-      var t = (d.icon ? d.icon + ' ' : '') + d.label + (d.state === 'skipped' ? ' — пропущено' : '');
-      li.appendChild(el('span', 'hs-step__t', t));
-      list.appendChild(li);
-    });
-  }
-
-  var lastDoing = '';
-  function renderRun(v) {
-    var steps = (v.steps || []).map(function (s) { return { icon: STEP_ICONS[s.key] || '', label: s.label, state: s.state }; });
-    renderSteps($('hs-run-steps'), steps);
-    setBar('hs-bar-run', v.progress || 0);
-    var q = $('hs-queue');
-    if (v.queue != null && v.queue > 0) { q.textContent = 'Перед вами в очереди: ' + v.queue; q.hidden = false; } else { q.hidden = true; }
-    var doing = steps.filter(function (s) { return s.state === 'doing'; })[0];
-    var label = doing ? doing.label : (v.queue > 0 ? q.textContent : '');
-    if (label && label !== lastDoing) { lastDoing = label; say(label + '…'); }
-  }
-
-  function enterRun() {
-    lastDoing = '';
-    $('hs-domain-run').textContent = state.domain;
-    setBar0('hs-bar-run');
-    clear($('hs-run-steps'));
-    $('hs-queue').hidden = true;
-    show('run');
-    say('Анализируем сайт ' + state.domain);
-    startPoll('run');
-  }
-  function setBar0(id) { var b = $(id); b.setAttribute('aria-valuenow', '0'); b.firstElementChild.style.width = '0'; }
-
-  /* ---------- состояние 3: первые результаты ---------- */
-  function listItems(ul, items, emptyText) {
-    clear(ul);
-    if (!items || !items.length) { ul.appendChild(el('li', null, emptyText)); return; }
-    items.forEach(function (t) { ul.appendChild(el('li', null, t)); });
-  }
-
-  function freqText(p) {
-    if (p.frequencyState === 'measured' && typeof p.frequency === 'number' && p.frequency >= 0) return fmt(p.frequency);
-    if (p.frequencyState === 'pending') return 'считаем…';
-    return 'частота уточняется';
-  }
-  function freqTip(p) {
-    if (p.frequencyState === 'measured' && typeof p.frequency === 'number') {
-      return 'по данным Яндекс Вордстата' + (p.measuredAt ? ', замер ' + p.measuredAt : '');
-    }
-    return '';
-  }
-  function freqAria(p) {
-    if (p.frequencyState === 'measured' && typeof p.frequency === 'number') return fmt(p.frequency) + ' показов в месяц ' + freqTip(p);
-    return freqText(p);
-  }
-
-  function coveredIcon(p) { return p.covered === true ? '✅' : p.covered === false ? '💡' : ''; }
-  function coveredText(p) { return p.covered === true ? 'есть материал на сайте' : p.covered === false ? 'материала нет' : ''; }
-
-  function rowLabel(p) {
-    var parts = [p.phrase, freqAria(p)];
-    if (p.covered != null) parts.push(coveredText(p) + ' по прочитанным страницам');
-    return parts.join(', ');
-  }
-
-  // обновление частот на месте, без перерисовки панелей (числа появляются при следующем опросе)
-  function refreshFreqs() {
-    var res = state.result;
-    if (!res) return;
-    var max = 0;
-    res.phrases.forEach(function (p) { if (p.frequencyState === 'measured' && p.frequency > max) max = p.frequency; });
-    Array.prototype.forEach.call(root.querySelectorAll('[data-freq]'), function (n) {
-      var p = res.phrases[+n.getAttribute('data-freq')];
-      if (!p) return;
-      n.textContent = freqText(p);
-      var measured = p.frequencyState === 'measured' && typeof p.frequency === 'number';
-      n.classList.toggle('is-wait', !measured);
-      var tip = freqTip(p);
-      if (tip) n.setAttribute('data-tip', tip); else n.removeAttribute('data-tip');
-      var btn = n.closest('button');
-      if (btn) btn.setAttribute('aria-label', rowLabel(p));
-    });
-    Array.prototype.forEach.call(root.querySelectorAll('[data-bar]'), function (b) {
-      var p = res.phrases[+b.getAttribute('data-bar')];
-      var measured = p && p.frequencyState === 'measured' && typeof p.frequency === 'number' && max > 0;
-      b.style.width = measured ? Math.max(3, Math.round(p.frequency / max * 100)) + '%' : '0';
-    });
-  }
-
-  function groupPhrases(res) {
-    var groups = [], byName = {};
-    function group(name) {
-      if (!byName[name]) { byName[name] = { name: name, items: [] }; groups.push(byName[name]); }
-      return byName[name];
-    }
-    (res.directions || []).forEach(function (d) { group(d.name); });
-    res.phrases.forEach(function (p, i) { group(p.direction || 'Другое').items.push(i); });
-    return groups.filter(function (g) { return g.items.length; });
-  }
-
-  function badgeFor(res, g) {
-    var known = g.items.filter(function (i) { return res.phrases[i].covered != null; });
-    if (!known.length) return null;
-    var yes = known.filter(function (i) { return res.phrases[i].covered === true; }).length;
-    if (yes === known.length) return ['✅ Закрыто', 'hs-badge hs-badge--done'];
-    if (yes === 0) return ['💡 Точка роста', 'hs-badge hs-badge--grow'];
-    return ['✍️ Частично', 'hs-badge'];
-  }
-
-  function renderResult(res) {
-    if (!res) return;
-    $('hs-domain-res').textContent = state.domain;
-    var brand = res.brand || {};
-    $('hs-brand').textContent = brand.name || state.domain;
-    $('hs-brand-line').textContent = brand.line || '';
-    $('hs-niche').textContent = res.niche || 'не определена';
-    $('hs-niche-t').textContent = res.niche || 'Ниша';
-    listItems($('hs-audience'), res.audience, 'не определена');
-    var off = clear($('hs-offers'));
-    if (res.offers && res.offers.length) res.offers.forEach(function (o) { off.appendChild(el('span', 'chip', o)); });
-    else off.appendChild(el('span', 'hs-card__s', 'не определены'));
-
-    var comp = clear($('hs-comp'));
-    (res.competitors || []).forEach(function (c) {
-      var li = el('li');
-      li.appendChild(el('b', null, c.domain));
-      if (c.why) li.appendChild(el('span', null, c.why));
-      comp.appendChild(li);
-    });
-    $('hs-comp-card').hidden = !comp.firstChild;
-
-    var anyCovered = res.phrases.some(function (p) { return p.covered != null; });
-    $('hs-legend').hidden = !anyCovered;
-
-    var dirs = clear($('hs-dirs'));
-    groupPhrases(res).forEach(function (g) {
-      var dir = el('div', 'hs-dir');
-      var box = el('div', 'hs-dir__box');
-      box.appendChild(el('div', 'hs-dir__n', g.name));
-      var cnt = g.items.length;
-      box.appendChild(el('div', 'hs-card__s', cnt + ' ' + (cnt % 10 === 1 && cnt % 100 !== 11 ? 'фраза' : (cnt % 10 >= 2 && cnt % 10 <= 4 && (cnt % 100 < 12 || cnt % 100 > 14) ? 'фразы' : 'фраз'))));
-      var b = badgeFor(res, g);
-      if (b) box.appendChild(el('span', b[1], b[0]));
-      dir.appendChild(box);
-      var kws = el('div', 'hs-kws');
-      g.items.forEach(function (i) {
-        var p = res.phrases[i];
-        var row = el('button', 'hs-kw');
-        row.type = 'button';
-        row.setAttribute('data-pick', String(i));
-        row.appendChild(el('span', 'hs-kw__i', coveredIcon(p)));
-        row.lastChild.setAttribute('aria-hidden', 'true');
-        row.appendChild(el('span', 'hs-kw__n', p.phrase));
-        var bar = el('span', 'hs-kw__bar'); var bi = el('i'); bi.setAttribute('data-bar', String(i)); bar.appendChild(bi);
-        row.appendChild(bar);
-        var f = el('span', 'hs-kw__f'); f.setAttribute('data-freq', String(i));
-        row.appendChild(f);
-        kws.appendChild(row);
-      });
-      dir.appendChild(kws);
-      dirs.appendChild(dir);
-    });
-    pickDefaultPhrase();
-    refreshFreqs();
-  }
-
-  /* ---------- состояние 4: выбор фразы и площадки ---------- */
-  function pickDefaultPhrase() {
-    var res = state.result;
-    if (!res || !res.phrases.length) return;
-    var has = res.phrases.some(function (p) { return p.phrase === state.chosen.phrase; });
-    if (has) return;
-    var best = 0, bestF = -1;
-    res.phrases.forEach(function (p, i) {
-      if (p.frequencyState === 'measured' && typeof p.frequency === 'number' && p.frequency > bestF) { best = i; bestF = p.frequency; }
-    });
-    state.chosen.phrase = res.phrases[best].phrase;
-  }
-
-  function platformList() {
-    var l = state.cfg && state.cfg.platforms && state.cfg.platforms.length ? state.cfg.platforms : DEFAULT_PLATFORMS;
-    return l;
-  }
-
-  function renderTopics() {
-    var res = state.result;
-    if (!res) return;
-    pickDefaultPhrase();
-    var list = clear($('hs-topics'));
-    var selIdx = 0;
-    res.phrases.forEach(function (p, i) { if (p.phrase === state.chosen.phrase) selIdx = i; });
-    res.phrases.forEach(function (p, i) {
-      var sel = i === selIdx;
-      var b = el('button', 'hs-topic' + (sel ? ' is-sel' : ''));
-      b.type = 'button';
-      b.setAttribute('role', 'radio');
-      b.setAttribute('aria-checked', String(sel));
-      b.tabIndex = sel ? 0 : -1;
-      b.setAttribute('data-topic', String(i));
-      var m = el('span', 'hs-topic__m', sel ? '✓' : ''); m.setAttribute('aria-hidden', 'true');
-      b.appendChild(m);
-      b.appendChild(el('span', 'hs-topic__n', p.phrase));
-      if (p.covered != null) { var h = el('span', 'hs-topic__h', coveredIcon(p) + ' ' + coveredText(p)); b.appendChild(h); }
-      var f = el('span', 'hs-topic__f'); f.setAttribute('data-freq', String(i));
-      b.appendChild(f);
-      list.appendChild(b);
-    });
-
-    var plats = clear($('hs-plats'));
-    var pl = platformList();
-    if (pl.indexOf(state.chosen.platform) < 0) state.chosen.platform = pl[0];
-    pl.forEach(function (name) {
-      var sel = name === state.chosen.platform;
-      var b = el('button', 'hs-plat' + (sel ? ' is-sel' : ''));
-      b.type = 'button';
-      b.setAttribute('role', 'radio');
-      b.setAttribute('aria-checked', String(sel));
-      b.tabIndex = sel ? 0 : -1;
-      b.setAttribute('data-plat', name);
-      var l = PLATFORM_LABELS[name];
-      var ic = el('span', null, l ? l[0] : '📝'); ic.setAttribute('aria-hidden', 'true');
-      b.appendChild(ic);
-      var tx = el('span');
-      tx.appendChild(document.createTextNode(l ? l[1] : name));
-      if (l) tx.appendChild(el('small', null, l[2]));
-      b.appendChild(tx);
-      plats.appendChild(b);
-    });
-    var others = Object.keys(PLATFORM_LABELS).filter(function (k) { return pl.indexOf(k) < 0; }).map(plainPlatform);
-    var more = $('hs-plat-more');
-    more.hidden = !others.length;
-    more.textContent = others.length ? 'В платформе также доступны: ' + others.join(', ') + '.' : '';
-    $('hs-topic-err').hidden = true;
-    refreshFreqs();
-  }
-
-  function selectRadio(group, attr, btn) {
-    Array.prototype.forEach.call(group.querySelectorAll('[role="radio"]'), function (b) {
-      var on = b === btn;
-      b.setAttribute('aria-checked', String(on));
-      b.tabIndex = on ? 0 : -1;
-      b.classList.toggle('is-sel', on);
-      var m = b.querySelector('.hs-topic__m');
-      if (m) m.textContent = on ? '✓' : '';
-    });
-    var v = btn.getAttribute(attr);
-    if (attr === 'data-topic') state.chosen.phrase = state.result.phrases[+v].phrase; else state.chosen.platform = v;
-    saveSession();
-  }
-
-  function radioKeys(e) {
-    var b = e.target.closest('[role="radio"]');
-    if (!b) return;
-    var group = b.parentNode, items = Array.prototype.slice.call(group.querySelectorAll('[role="radio"]'));
-    var i = items.indexOf(b), n = items.length, to = -1;
-    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') to = (i + 1) % n;
-    else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') to = (i - 1 + n) % n;
-    else if (e.key === 'Home') to = 0;
-    else if (e.key === 'End') to = n - 1;
-    if (to < 0) return;
-    e.preventDefault();
-    items[to].focus();
-    selectRadio(group, group.id === 'hs-topics' ? 'data-topic' : 'data-plat', items[to]);
-  }
-  $('hs-topics').addEventListener('keydown', radioKeys);
-  $('hs-plats').addEventListener('keydown', radioKeys);
-  $('hs-topics').addEventListener('click', function (e) { var b = e.target.closest('[data-topic]'); if (b) selectRadio($('hs-topics'), 'data-topic', b); });
-  $('hs-plats').addEventListener('click', function (e) { var b = e.target.closest('[data-plat]'); if (b) selectRadio($('hs-plats'), 'data-plat', b); });
-
-  function startArticle() {
-    if (state.busy) return;
-    var phrase = state.chosen.phrase, platform = state.chosen.platform;
-    if (!phrase || !platform) return;
-    var btn = $('hs-start'), err = $('hs-topic-err');
-    err.hidden = true;
-    setBusy(btn, true, 'Отправляем…');
-    goal('demo_phrase_chosen');
-    goal('demo_article_requested');
-    call('POST', '/analyses/' + encodeURIComponent(state.id) + '/article', {
-      token: state.token, body: { phrase: phrase, platform: platform }, idem: 'art-' + state.id.slice(0, 40)
+    FIELD_IDS.slice(1).forEach(function (id) { setError(id, ''); });
+    if (!validate()) return;
+    setBusy(true);
+    fetch(SIGNUP_API, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url: state.url,
+        name: $('hs-name').value.trim(),
+        phone: '+7' + phoneValue(),
+        email: $('hs-email').value.trim(),
+        consent: true,
+        hp: $('hs-hp').value,
+        utm: utmFromQuery()
+      })
     }).then(function (r) {
-      setBusy(btn, false);
-      if (r.status === 202) {
-        saveSession();
-        enterGen();
-        return;
-      }
-      var c = codeOf(r);
-      if (c === 'demo_phrase_unknown' || c === 'demo_platform_forbidden' || c === 'demo_bad_request') {
-        err.textContent = c === 'demo_platform_forbidden' ? 'Эта площадка недоступна в демо. Выберите другую.' : 'Такой фразы нет в результатах. Выберите фразу из списка.';
-        err.hidden = false;
-        return;
-      }
-      if (c === 'demo_conflict') { err.textContent = 'Сейчас это действие недоступно. Дождитесь результатов анализа и попробуйте ещё раз.'; err.hidden = false; return; }
-      if (c === 'demo_disabled') { show('off'); return; }
-      showError(kindFromProblem(r), { retryAfter: r.retryAfter });
-    }, function (e) {
-      setBusy(btn, false);
-      if (e && e.user) return;
-      err.textContent = 'Не удалось связаться с сервером. Проверьте интернет и нажмите кнопку ещё раз.';
-      err.hidden = false;
+      return r.json().catch(function () { return {}; }).then(function (body) { return { status: r.status, body: body || {} }; });
+    }).then(function (r) {
+      var to = r.body.redirect;
+      if (r.status === 201 && typeof to === 'string' && /^\/(?!\/)/.test(to)) { location.assign(to); return; }
+      setBusy(false);
+      showProblem(r.status, r.status === 201 ? '' : r.body.code);
+    }, function () {
+      setBusy(false);
+      generalError();
     });
   }
 
-  /* ---------- состояние 5: создаём статью ---------- */
-  function renderGen(status) {
-    var cur = status === 'article_writing' ? 1 : 0;
-    renderSteps($('hs-gen-steps'), GEN_STEPS.map(function (g, i) {
-      return { icon: g[0], label: g[1], state: i < cur ? 'done' : i === cur ? 'doing' : 'todo' };
-    }));
-    setBar('hs-bar-gen', cur === 0 ? 15 : 60);
-    var label = GEN_STEPS[cur][1];
-    if (label !== lastDoing) { lastDoing = label; say(label + '…'); }
-  }
-  function enterGen() {
-    lastDoing = '';
-    $('hs-sel-gen').textContent = state.chosen.phrase;
-    $('hs-sel-gen-p').textContent = plainPlatform(state.chosen.platform);
-    setBar0('hs-bar-gen');
-    renderGen('article_queued');
-    show('gen');
-    startPoll('gen');
-  }
-
-  /* ---------- состояние 6: пробная статья ---------- */
-  function articleBlocks(a) {
-    var wrap = document.createDocumentFragment(), ul = null;
-    (a.blocks || []).forEach(function (b) {
-      if (b.type === 'li') {
-        if (!ul) { ul = el('ul'); wrap.appendChild(ul); }
-        ul.appendChild(el('li', null, b.text));
-        return;
-      }
-      ul = null;
-      wrap.appendChild(el(b.type === 'h2' ? 'h4' : b.type === 'h3' ? 'h5' : 'p', null, b.text));
-    });
-    return wrap;
-  }
-
-  function renderArticle(a) {
-    if (!a) return;
-    var chips = clear($('hs-art-chips'));
-    chips.appendChild(el('span', 'chip', '📍 ' + plainPlatform(a.platform)));
-    chips.appendChild(el('span', 'chip', '🔎 Фраза: ' + a.phrase));
-    if (a.words) chips.appendChild(el('span', 'chip', '📝 ' + fmt(a.words) + ' ' + wordsWord(a.words)));
-    $('hs-art-title').textContent = a.title || '';
-    var body = clear($('hs-art-body'));
-    body.appendChild(articleBlocks(a));
-  }
-
-  function articleText(a) {
-    var out = [a.title || ''];
-    (a.blocks || []).forEach(function (b) {
-      out.push(b.type === 'li' ? '— ' + b.text : b.text);
-    });
-    return out.join('\n\n');
-  }
-
-  function copyArticle() {
-    var a = state.article;
-    if (!a) return;
-    var text = articleText(a), btn = $('hs-copy');
-    function ok() {
-      btn.textContent = '✅ Скопировано';
-      say('Текст скопирован');
-      clearTimeout(copyTimer);
-      copyTimer = setTimeout(function () { btn.textContent = '📋 Скопировать текст'; }, 2500);
-    }
-    function legacy() {
-      var ta = el('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
-      document.body.appendChild(ta); ta.select();
-      try { if (document.execCommand('copy')) ok(); } catch (e) { /* нет доступа к буферу */ }
-      document.body.removeChild(ta);
-    }
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, legacy); else legacy();
-  }
-
-  /* ---------- боковое: нужна ниша ---------- */
-  function submitNiche(ev) {
-    ev.preventDefault();
-    if (state.busy) return;
-    var inp = $('hs-niche-inp'), err = $('hs-niche-err');
-    var n = inp.value.replace(/\s+/g, ' ').trim();
-    if (n.length < 3 || n.length > 200) {
-      err.textContent = 'Опишите нишу от 3 до 200 знаков, например «клининг квартир».';
-      err.hidden = false; inp.setAttribute('aria-invalid', 'true'); inp.focus();
-      return;
-    }
-    err.hidden = true; inp.setAttribute('aria-invalid', 'false');
-    var btn = $('hs-niche-go');
-    setBusy(btn, true, 'Отправляем…');
-    call('PUT', '/analyses/' + encodeURIComponent(state.id) + '/niche', { token: state.token, body: { niche: n } }).then(function (r) {
-      setBusy(btn, false);
-      if (r.status === 202) { enterRun(); return; }
-      var c = codeOf(r);
-      if (r.status === 422 || c === 'demo_bad_request') { err.textContent = 'Опишите нишу от 3 до 200 знаков.'; err.hidden = false; inp.focus(); return; }
-      if (c === 'demo_conflict') { startPoll('run', true); show('run'); return; }
-      showError(kindFromProblem(r));
-    }, function (e) {
-      setBusy(btn, false);
-      if (e && e.user) return;
-      err.textContent = 'Не удалось связаться с сервером. Попробуйте ещё раз.';
-      err.hidden = false;
-    });
-  }
-
-  /* ---------- сброс и отмена ---------- */
-  function resetToInput(opts) {
-    opts = opts || {};
-    var id = state.id, token = state.token;
-    stopPoll();
-    if (opts.del && id && token) { call('DELETE', '/analyses/' + encodeURIComponent(id), { token: token }).then(null, function () {}); }
-    dropSession();
-    state.id = ''; state.token = ''; state.view = null; state.result = null; state.article = null;
-    state.chosen = { phrase: '', platform: '' }; state.idem = { url: '', key: '' };
-    state.busy = false;
-    clear($('hs-dirs')); clear($('hs-run-steps'));
-    $('hs-go').disabled = false;
-    inputError('');
-    show('input');
-    $('hs-site').focus();
-  }
-
-  /* логотип в шапке — возврат к исходному виду: демо сбрасывается, режим фокуса снимается, страница прокручивается к началу */
+  /* ---------- сброс: логотип на главной прокручивает к началу и возвращает форму к шагу 1 ---------- */
   var logo = document.querySelector('.header .logo');
   if (logo) logo.addEventListener('click', function (e) {
     e.preventDefault();
-    if (state.screen !== 'off') { resetToInput({ del: true }); $('hs-site').value = ''; }
+    if (!state.busy) {
+      $('hs-form').reset();
+      $('hs-sign').reset();
+      state.url = ''; phoneDigits = 0;
+      FIELD_IDS.forEach(function (id) { setError(id, ''); });
+      show('input');
+    }
     window.scrollTo(0, 0);
   });
 
   /* ---------- события ---------- */
-  $('hs-form').addEventListener('submit', startAnalysis);
-  $('hs-site').addEventListener('input', function () { inputError(''); });
-  $('hs-niche-form').addEventListener('submit', submitNiche);
-  $('hs-start').addEventListener('click', startArticle);
-  $('hs-copy').addEventListener('click', copyArticle);
-  $('hs-cancel').addEventListener('click', function () { resetToInput({ del: true }); });
-  $('hs-error-retry').addEventListener('click', function () { if (retryAction) retryAction(); });
-
-  root.addEventListener('click', function (e) {
-    var t = e.target.closest('[data-hs-go], [data-hs-reset], [data-pick]');
-    if (!t) return;
-    if (t.hasAttribute('data-hs-reset')) { resetToInput(); return; }
-    if (t.hasAttribute('data-pick')) {
-      state.chosen.phrase = state.result.phrases[+t.getAttribute('data-pick')].phrase;
-      renderTopics();
-      show('topic');
-      return;
-    }
-    var to = t.getAttribute('data-hs-go');
-    if (to === 'topic') { renderTopics(); show('topic'); }
-    else if (to === 'result') show('result');
-  });
-
-  /* ---------- запуск: сначала конфиг, без него — спокойная карточка вместо живого блока ---------- */
-  function boot() {
-    var go = $('hs-go');
-    go.disabled = true;
-    var done = false;
-    function off() { if (done) return; done = true; show('off', { quiet: true }); }
-    var guard = setTimeout(off, 8000);
-    call('GET', '/config').then(function (r) {
-      clearTimeout(guard);
-      if (done) return;
-      if (r.status !== 200 || !r.body || r.body.enabled !== true) { off(); return; }
-      done = true;
-      state.cfg = r.body;
-      go.disabled = false;
-      var saved = loadSession();
-      if (saved) {
-        state.id = saved.id; state.token = saved.token; state.domain = saved.domain || '';
-        state.chosen = { phrase: saved.phrase || '', platform: saved.platform || '' };
-        $('hs-domain-run').textContent = state.domain;
-        show('run', { quiet: true });
-        startPoll('run', true);
-      }
-    }, function () { clearTimeout(guard); off(); });
-  }
-  boot();
+  $('hs-form').addEventListener('submit', submitUrl);
+  $('hs-site').addEventListener('input', function () { setError('hs-site', ''); });
+  $('hs-sign').addEventListener('submit', submitSignup);
+  $('hs-edit').addEventListener('click', function () { if (!state.busy) { show('input'); $('hs-site').focus(); } });
+  $('hs-phone').addEventListener('input', onPhoneInput);
+  ['hs-name', 'hs-email'].forEach(function (id) { $(id).addEventListener('input', function () { setError(id, ''); }); });
+  $('hs-consent').addEventListener('change', function () { setError('hs-consent', ''); });
 })();
