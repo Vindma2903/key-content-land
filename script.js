@@ -1,3 +1,7 @@
+/* ============ Настройки страницы ============ */
+// Номер счётчика Яндекс Метрики для целей первого экрана. null — цели не отправляются. Сам счётчик подключается отдельно (код счётчика в страницу).
+var METRIKA_ID = null;
+
 (function () {
   'use strict';
 
@@ -249,6 +253,16 @@
   if (!root) return;
 
   var SIGNUP_API = '/api/v1/public/signup';
+
+  /* ---------- метрика: только имя цели и код ошибки, без адреса сайта, имени, телефона и почты ---------- */
+  function goal(name, params) {
+    try {
+      if (METRIKA_ID && typeof window.ym === 'function') {
+        if (params) window.ym(METRIKA_ID, 'params', params);
+        window.ym(METRIKA_ID, 'reachGoal', name);
+      }
+    } catch (e) { /* счётчик не должен ломать страницу */ }
+  }
   var CONTACT_MAIL = 'info@pro-technologii.ru';
   var UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
   var FIELD_IDS = ['hs-site', 'hs-name', 'hs-phone', 'hs-email', 'hs-consent', 'hs-general'];
@@ -308,6 +322,7 @@
     setError('hs-site', '');
     state.url = url;
     $('hs-site-name').textContent = url.replace(/^https?:\/\//i, '').replace(/\/$/, '');
+    goal('signup_url_submitted');
     show('contacts');
   }
 
@@ -390,6 +405,7 @@
     FIELD_IDS.slice(1).forEach(function (id) { setError(id, ''); });
     if (!validate()) return;
     setBusy(true);
+    goal('signup_submitted');
     fetch(SIGNUP_API, {
       method: 'POST',
       credentials: 'same-origin',
@@ -407,8 +423,9 @@
       return r.json().catch(function () { return {}; }).then(function (body) { return { status: r.status, body: body || {} }; });
     }).then(function (r) {
       var to = r.body.redirect;
-      if (r.status === 201 && typeof to === 'string' && /^\/(?!\/)/.test(to)) { location.assign(to); return; }
+      if (r.status === 201 && typeof to === 'string' && /^\/(?!\/)/.test(to)) { goal('signup_success'); location.assign(to); return; }
       setBusy(false);
+      goal('signup_error', { signup_error: r.status === 201 ? 'bad_redirect' : String(r.body.code || r.status) });
       showProblem(r.status, r.status === 201 ? '' : r.body.code);
     }, function () {
       setBusy(false);
