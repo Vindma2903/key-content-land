@@ -269,7 +269,7 @@ var METRIKA_ID = null;
   var URL_RE = /^(?:https?:\/\/)?(?:[\p{L}\p{N}](?:[\p{L}\p{N}-]*[\p{L}\p{N}])?\.)+[\p{L}\p{N}-]{2,}(?::\d{2,5})?(?:[\/?#]\S*)?$/u;
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   var FIELD_ERR = {
-    invalid_phone: ['hs-phone', 'Проверьте номер телефона: после +7 нужно 10 цифр.'],
+    invalid_phone: ['hs-phone', ''],  // текст зависит от режима ввода, см. phoneProblem()
     invalid_email: ['hs-email', 'Проверьте адрес почты, например ivan@ваш-сайт.ru.'],
     consent_required: ['hs-consent', 'Нужно согласие, чтобы продолжить.']
   };
@@ -326,7 +326,13 @@ var METRIKA_ID = null;
     show('contacts');
   }
 
-  /* ---------- телефон: маска +7 (900) 123-45-67, наружу уходит +7 и 10 цифр ---------- */
+  /* ---------- телефон ----------
+     Российский режим (по умолчанию, ввод 7/8/9… или +7): маска +7 (900) 123-45-67, наружу +7 и 10 цифр.
+     Международный режим: «+» и первая цифра не 7 (+44, +1, +380…): без жёсткой маски, до 15 цифр
+     с пробелами по группам, наружу «+» и все цифры (формат E.164, как ждёт сервер). */
+  var PHONE_INTL_MAX = 15, PHONE_INTL_MIN = 8;
+  var CC3_RE = /^(2[1-69]|3[578]|42|50|59|6[789]|8[0578]|9[679])/;  // коды стран из трёх цифр
+
   function phoneMask(digits) {
     if (!digits) return '';
     var s = '+7 (' + digits.slice(0, 3);
@@ -335,18 +341,68 @@ var METRIKA_ID = null;
     if (digits.length > 8) s += '-' + digits.slice(8, 10);
     return s;
   }
+  /* международный номер: +44 207 946 0958 → «+44 207 946 095 8»: код страны, дальше группы по три */
+  function intlMask(digits) {
+    var cc = digits.charAt(0) === '1' ? 1 : (CC3_RE.test(digits) ? 3 : 2);
+    var parts = [digits.slice(0, cc)];
+    for (var i = cc; i < digits.length; i += 3) parts.push(digits.slice(i, i + 3));
+    // одинокая последняя цифра присоединяется к предыдущей группе: +44 207 946 0958, а не «…095 8»
+    if (parts.length > 2 && parts[parts.length - 1].length === 1) { var one = parts.pop(); parts[parts.length - 1] += one; }
+    return '+' + parts.join(' ');
+  }
+  /* что ввёл пользователь: режим ('ru' | 'intl') и цифры без кода страны (ru) или с ним (intl) */
+  function parsePhone(raw) {
+    var all = raw.replace(/\D/g, '');
+    if (raw.trim().charAt(0) === '+' && all.charAt(0) !== '7') {
+      return { mode: 'intl', d: all.slice(0, PHONE_INTL_MAX) };
+    }
+    var d = all;
+    if (d.charAt(0) === '7' || d.charAt(0) === '8') d = d.slice(1);
+    return { mode: 'ru', d: d.slice(0, 10), plus: raw.trim().charAt(0) === '+' };
+  }
   function onPhoneInput(ev) {
     var inp = ev.target;
-    var d = inp.value.replace(/\D/g, '');
-    if (d.charAt(0) === '7' || d.charAt(0) === '8') d = d.slice(1);
-    d = d.slice(0, 10);
-    // стирание символа маски (скобка, пробел, дефис) не меняет цифры: тогда убираем последнюю цифру
-    if (ev.inputType === 'deleteContentBackward' && d.length === phoneDigits && d.length) d = d.slice(0, -1);
-    phoneDigits = d.length;
-    inp.value = phoneMask(d);
+    var raw = inp.value;
+    var p = parsePhone(raw);
+    if (p.mode === 'intl') {
+      var out = p.d ? intlMask(p.d) : '+';
+      // правка в середине: каретка остаётся после той же цифры, а не прыгает в конец
+      var caret = inp.selectionStart;
+      if (caret != null && caret < raw.length) {
+        var before = raw.slice(0, caret).replace(/\D/g, '').length, pos = 0, seen = 0;
+        if (before > p.d.length) before = p.d.length;
+        while (pos < out.length && seen < before) { if (/\d/.test(out.charAt(pos))) seen++; pos++; }
+        inp.value = out;
+        try { inp.setSelectionRange(Math.max(pos, 1), Math.max(pos, 1)); } catch (e) { /* каретка не критична */ }
+      } else {
+        inp.value = out;
+      }
+      phoneDigits = p.d.length;
+    } else {
+      var d = p.d;
+      // стирание символа маски (скобка, пробел, дефис) не меняет цифры: тогда убираем последнюю цифру
+      if (ev.inputType === 'deleteContentBackward' && d.length === phoneDigits && d.length) d = d.slice(0, -1);
+      phoneDigits = d.length;
+      // «+7» без цифр оставляем видимым, иначе набранный код страны исчезает из поля
+      inp.value = d ? phoneMask(d) : (p.plus ? '+7' : '');
+    }
     setError('hs-phone', '');
   }
-  function phoneValue() { return $('hs-phone').value.replace(/\D/g, '').slice(1); }
+  /* номер для отправки: +7 и 10 цифр или + и цифры международного номера */
+  function phoneValue() {
+    var p = parsePhone($('hs-phone').value);
+    return (p.mode === 'intl' ? '+' : '+7') + p.d;
+  }
+  /* текст ошибки по режиму ввода; short — для проверки до отправки, иначе для ответа сервера */
+  function phoneProblem(short) {
+    var p = parsePhone($('hs-phone').value);
+    if (p.mode === 'intl') return 'Проверьте номер: для международного номера нужно от 8 до 15 цифр с кодом страны.';
+    return short ? 'Введите номер полностью: после +7 нужно 10 цифр.' : 'Проверьте номер телефона: после +7 нужно 10 цифр.';
+  }
+  function phoneValid() {
+    var p = parsePhone($('hs-phone').value);
+    return p.mode === 'intl' ? p.d.length >= PHONE_INTL_MIN && p.d.length <= PHONE_INTL_MAX && p.d.charAt(0) !== '0' : p.d.length === 10;
+  }
 
   /* ---------- шаг 2: отправка ---------- */
   function utmFromQuery() {
@@ -368,7 +424,7 @@ var METRIKA_ID = null;
     var bad = null;
     function flag(id, msg) { setError(id, msg); if (!bad) bad = $(id); }
     if (!$('hs-name').value.trim()) flag('hs-name', 'Укажите имя.');
-    if (phoneValue().length !== 10) flag('hs-phone', 'Введите номер полностью: после +7 нужно 10 цифр.');
+    if (!phoneValid()) flag('hs-phone', phoneProblem(true));
     if (!EMAIL_RE.test($('hs-email').value.trim())) flag('hs-email', 'Проверьте адрес почты, например ivan@ваш-сайт.ru.');
     if (!$('hs-consent').checked) flag('hs-consent', 'Нужно согласие, чтобы продолжить.');
     if (bad) { bad.focus(); return false; }
@@ -384,7 +440,7 @@ var METRIKA_ID = null;
         : 'Не получилось открыть этот сайт. Проверьте адрес и попробуйте ещё раз.');
       $('hs-site').focus();
     } else if (FIELD_ERR[code]) {
-      setError(FIELD_ERR[code][0], FIELD_ERR[code][1]);
+      setError(FIELD_ERR[code][0], code === 'invalid_phone' ? phoneProblem(false) : FIELD_ERR[code][1]);
       $(FIELD_ERR[code][0]).focus();
     } else if (code === 'email_taken') {
       setError('hs-email', textWithLink('Такая почта уже зарегистрирована. ', '/login', 'Войти'));
@@ -413,7 +469,7 @@ var METRIKA_ID = null;
       body: JSON.stringify({
         url: state.url,
         name: $('hs-name').value.trim(),
-        phone: '+7' + phoneValue(),
+        phone: phoneValue(),
         email: $('hs-email').value.trim(),
         consent: true,
         hp: $('hs-hp').value,
