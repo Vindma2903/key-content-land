@@ -1,6 +1,18 @@
 /* ============ Настройки страницы ============ */
 // Номер счётчика Яндекс Метрики для целей первого экрана. null — цели не отправляются. Сам счётчик подключается отдельно (код счётчика в страницу).
 var METRIKA_ID = null;
+// Счётчик посещений Umami (свой сервер, без cookie). Пока оба значения пусты, счётчик не подключается.
+// src - https-адрес script.js на нашем сервере Umami, id - идентификатор сайта «лендинг» из Umami.
+var UMAMI = { src: '', id: '' };
+(function () {
+  'use strict';
+  if (!UMAMI.src || !UMAMI.id || !/^https:\/\//.test(UMAMI.src)) return;
+  var s = document.createElement('script');
+  s.defer = true;
+  s.src = UMAMI.src;
+  s.setAttribute('data-website-id', UMAMI.id);
+  document.head.appendChild(s);
+})();
 
 (function () {
   'use strict';
@@ -261,6 +273,7 @@ var METRIKA_ID = null;
         if (params) window.ym(METRIKA_ID, 'params', params);
         window.ym(METRIKA_ID, 'reachGoal', name);
       }
+      if (window.umami && typeof window.umami.track === 'function') window.umami.track(name, params);
     } catch (e) { /* счётчик не должен ломать страницу */ }
   }
   var CONTACT_MAIL = 'info@pro-technologii.ru';
